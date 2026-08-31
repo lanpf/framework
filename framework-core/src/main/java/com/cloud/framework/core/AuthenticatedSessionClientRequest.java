@@ -1,7 +1,6 @@
 package com.cloud.framework.core;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,18 +9,23 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AuthenticatedRequest extends ClientRequest {
-    @NotNull
-    @Positive
-    private Long userId;
+public class AuthenticatedSessionClientRequest extends ClientRequest implements AuthenticatedSessionContext {
 
-    public AuthenticatedRequest(
+    @NotBlank
+    private String userId;
+
+    @NotBlank
+    private String sessionId;
+
+    public AuthenticatedSessionClientRequest(
             String clientAppId,
             String clientPlatform,
             String clientVersion,
-            Long userId
+            String userId,
+            String sessionId
     ) {
         super(clientAppId, clientPlatform, clientVersion);
         this.userId = userId;
+        this.sessionId = sessionId;
     }
 }

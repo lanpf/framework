@@ -9,20 +9,11 @@ public abstract class EntityId<T> {
     private final T value;
 
     protected EntityId(T value) {
-        if (value == null) {
-            throw invalidException(value);
-        }
-        if (value instanceof Number && ((Number) value).longValue() <= 0) {
-            throw invalidException(value);
-        }
-        if (value instanceof CharSequence && value.toString().trim().isEmpty()) {
-            throw invalidException(value);
-        }
-        this.value = value;
+        this.value = validate(value);
     }
 
-    protected RuntimeException invalidException(T value) {
-        return new IllegalArgumentException("Entity id is invalid: " + value);
+    protected T validate(T value) {
+        return value;
     }
 
     public T value() {

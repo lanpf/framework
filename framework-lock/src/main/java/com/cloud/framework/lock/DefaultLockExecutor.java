@@ -20,7 +20,7 @@ public class DefaultLockExecutor implements LockExecutor {
             @NotNull @Valid LockContext context,
             @NotNull Callable<T> callable
     ) throws Exception {
-        Lock lock = lockProvider.obtain(context.getLockName());
+        Lock lock = lockProvider.obtain(context.lockNames());
         if (!tryLock(lock, context.waitTime())) {
             return Optional.empty();
         }

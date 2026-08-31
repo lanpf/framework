@@ -17,4 +17,8 @@ public class FrameworkException extends BaseException {
     public FrameworkException(Error error, Throwable cause) {
         super(error, cause);
     }
+
+    public static FrameworkException unspecified() {
+        return new FrameworkException(FrameworkError.FRAMEWORK_ERROR);
+    }
 }

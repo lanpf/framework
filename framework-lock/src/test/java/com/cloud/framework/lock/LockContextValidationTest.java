@@ -19,8 +19,8 @@ class LockContextValidationTest {
 
     @Test
     void shouldValidateSceneKeyAndWaitTime() {
-        LockContext context = new LockContext(" ", "", Duration.ofSeconds(-1));
+        LockContext context = new LockContext(Duration.ofSeconds(-1), " ");
 
-        assertEquals(3, validator.validate(context).size());
+        assertEquals(2, validator.validate(context).size());
     }
 }

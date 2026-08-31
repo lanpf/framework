@@ -1,6 +1,7 @@
 package com.cloud.framework.lock;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.concurrent.locks.Lock;
@@ -9,5 +10,5 @@ import java.util.concurrent.locks.Lock;
 public interface LockProvider {
 
     @NotNull
-    Lock obtain(@NotBlank String lockName);
+    Lock obtain(@NotBlank String @NotEmpty ... lockNames);
 }

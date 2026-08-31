@@ -9,8 +9,5 @@ import lombok.NonNull;
 @AllArgsConstructor
 public abstract class AbstractDomainEvent implements DomainEvent {
     @NonNull
-    private final DomainEventId eventId;
-
-    @NonNull
     private final Instant occurredAt;
 }

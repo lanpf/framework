@@ -14,11 +14,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ClientChannelRequest extends ClientRequest {
+public class ChannelClientRequest extends ClientRequest implements ChannelContext {
     @NotBlank
     private String channelCode;
 
-    public ClientChannelRequest(
+    public ChannelClientRequest(
             String clientAppId,
             String clientPlatform,
             String clientVersion,

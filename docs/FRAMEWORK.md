@@ -30,11 +30,12 @@
 - 基础响应包装使用 `Result<T>`、`PageResult<T>`。分页 API 请求通过 `PaginationRequest` 组合分页能力；只有分页字段时可直接使用 `PageQueryRequest`，同时具有 Client、Channel 或业务条件时由请求类型自行实现该接口，不以分页类作为共同父类。
 - `PageQuery` 是接口层完成默认值解析后交给 application、repository 和 persistence 使用的不可变分页条件；非法页码或页大小直接拒绝，不做静默纠正。
 - 完整构造后不再变化的数据载体优先使用 `record`；`Result`、`PageResult`、`PageQuery` 均为不可变值。Spring MVC 请求绑定、请求头回填和配置属性等需要分步写入的类型保留为普通类，不为追求形式统一而改为 `record`。
+- `ClientRequest` 是所有入口客户端上下文请求的共同基类。渠道与认证会话不是互斥层级：分别由 `ChannelContext`、`AuthenticatedSessionContext` 表达可组合能力；框架提供只含渠道、只含认证会话和同时组合两者的具体请求类型。能力接口字段带 Bean Validation 约束，使用方只组合实际需要的上下文。
 
 ### `framework-domain`
 
 - 提供领域 ID、领域事件、领域事件存储端口、Repository 和应用/领域内部分页数据能力。
-- `DomainEventId` 和 `DomainEventIdGenerator` 在本 module 定义；前者表达领域事件标识，后者表达领域事件 ID 生成端口，具体发号技术由外部适配。
+- 原始 `DomainEvent` 只表达已经发生的业务事实，不携带持久化记录 ID，也不依赖 ID 生成端口；EventStore 在构造持久化 Envelope 时分配事件记录 ID。
 - 领域事件的 `occurredAt` 使用 `Instant`，由事件创建者显式传入，不在事件模型内部获取当前时间。
 - 应用和领域内部分页数据使用 `PagedList<T>`。
 

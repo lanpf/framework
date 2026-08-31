@@ -3,7 +3,7 @@
 ## Validation
 
 - **JAVA-VALIDATION-001** — Use Jakarta Bean Validation for constraints on bindable Bean properties and method parameters.
-- **JAVA-VALIDATION-002** — Use explicit checks such as `Assert` only when framework validation cannot express the constraint or an internal API requires fast failure.
+- **JAVA-VALIDATION-002** — Use explicit checks such as `Require` only when framework validation cannot express the constraint or an internal API requires fast failure.
 
 ## Exceptions and logging
 

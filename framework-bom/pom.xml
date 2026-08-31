@@ -6,14 +6,14 @@
 
     <groupId>com.cloud</groupId>
     <artifactId>framework-bom</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>framework-bom</name>
     <description>Dependency management for framework modules</description>
 
     <properties>
-        <framework.version>0.2.0-SNAPSHOT</framework.version>
+        <revision.version>${project.version}</revision.version>
     </properties>
 
     <dependencyManagement>
@@ -21,32 +21,32 @@
             <dependency>
                 <groupId>com.cloud</groupId>
                 <artifactId>framework-core</artifactId>
-                <version>${framework.version}</version>
+                <version>${revision.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.cloud</groupId>
                 <artifactId>framework-domain</artifactId>
-                <version>${framework.version}</version>
+                <version>${revision.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.cloud</groupId>
                 <artifactId>framework-message</artifactId>
-                <version>${framework.version}</version>
+                <version>${revision.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.cloud</groupId>
                 <artifactId>framework-id</artifactId>
-                <version>${framework.version}</version>
+                <version>${revision.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.cloud</groupId>
                 <artifactId>framework-persistence</artifactId>
-                <version>${framework.version}</version>
+                <version>${revision.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.cloud</groupId>
                 <artifactId>framework-lock</artifactId>
-                <version>${framework.version}</version>
+                <version>${revision.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

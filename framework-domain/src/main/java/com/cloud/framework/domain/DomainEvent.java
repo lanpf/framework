@@ -3,10 +3,6 @@ package com.cloud.framework.domain;
 import java.time.Instant;
 
 public interface DomainEvent {
-    default DomainEventId eventId() {
-        return getEventId();
-    }
-
     default Instant occurredAt() {
         return getOccurredAt();
     }
@@ -14,8 +10,6 @@ public interface DomainEvent {
     default String eventType() {
         return getEventType();
     }
-
-    DomainEventId getEventId();
 
     Instant getOccurredAt();
 

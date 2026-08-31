@@ -1,8 +1,9 @@
 package com.cloud.framework.core.mapper;
 
 import org.mapstruct.MapperConfig;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
-@MapperConfig(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@MapperConfig(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MapStructConfig {
 }

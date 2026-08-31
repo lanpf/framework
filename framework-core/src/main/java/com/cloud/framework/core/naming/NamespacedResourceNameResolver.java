@@ -9,7 +9,7 @@ public class NamespacedResourceNameResolver implements ResourceNameResolver {
     private final Namespaced namespaced;
 
     @Override
-    public String resolve(String name) {
-        return namespaceResolver.resolve(namespaced) + ":" + name;
+    public String resolve(String... name) {
+        return namespaceResolver.resolve(namespaced) + delimiter() + String.join(delimiter(), name);
     }
 }
