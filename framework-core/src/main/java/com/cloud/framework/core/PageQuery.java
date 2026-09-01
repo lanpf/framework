@@ -5,18 +5,14 @@ package com.cloud.framework.core;
  */
 public record PageQuery(int pageNo, int pageSize) {
 
-    public static final int DEFAULT_PAGE_NO = PaginationRequest.DEFAULT_PAGE_NO;
-    public static final int DEFAULT_PAGE_SIZE = PaginationRequest.DEFAULT_PAGE_SIZE;
-    public static final int MAX_PAGE_SIZE = PaginationRequest.MAX_PAGE_SIZE;
-
-    private static final PageQuery DEFAULT = new PageQuery(DEFAULT_PAGE_NO, DEFAULT_PAGE_SIZE);
+    private static final PageQuery DEFAULT = new PageQuery(Pagination.DEFAULT_PAGE_NO, Pagination.DEFAULT_PAGE_SIZE);
 
     public PageQuery {
-        if (pageNo < DEFAULT_PAGE_NO) {
+        if (pageNo < Pagination.DEFAULT_PAGE_NO) {
             throw new IllegalArgumentException("pageNo must be positive");
         }
-        if (pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
-            throw new IllegalArgumentException("pageSize must be between 1 and " + MAX_PAGE_SIZE);
+        if (pageSize < 1 || pageSize > Pagination.MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException("pageSize must be between 1 and " + Pagination.MAX_PAGE_SIZE);
         }
     }
 
@@ -30,20 +26,20 @@ public record PageQuery(int pageNo, int pageSize) {
 
     public static PageQuery of(Integer pageNo, Integer pageSize) {
         return new PageQuery(
-                pageNo == null ? DEFAULT_PAGE_NO : pageNo,
-                pageSize == null ? DEFAULT_PAGE_SIZE : pageSize
+                pageNo == null ? Pagination.DEFAULT_PAGE_NO : pageNo,
+                pageSize == null ? Pagination.DEFAULT_PAGE_SIZE : pageSize
         );
     }
 
     public static PageQuery ofSize(Integer pageSize) {
-        return of(DEFAULT_PAGE_NO, pageSize);
+        return of(Pagination.DEFAULT_PAGE_NO, pageSize);
     }
 
-    public static PageQuery from(PaginationRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("pagination request must not be null");
+    public static PageQuery from(Pagination pagination) {
+        if (pagination == null) {
+            throw new IllegalArgumentException("pagination must not be null");
         }
-        return of(request.getPageNo(), request.getPageSize());
+        return of(pagination.getPageNo(), pagination.getPageSize());
     }
 
     public static PageQuery defaults() {

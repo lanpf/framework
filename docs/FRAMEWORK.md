@@ -27,7 +27,7 @@
 ### `framework-core`
 
 - 提供通用请求、响应、错误、异常、分页请求、函数回调、命名空间、资源命名和 MapStruct 公共配置等基础能力。
-- 基础响应包装使用 `Result<T>`、`PageResult<T>`。分页 API 请求通过 `PaginationRequest` 组合分页能力；只有分页字段时可直接使用 `PageQueryRequest`，同时具有 Client、Channel 或业务条件时由请求类型自行实现该接口，不以分页类作为共同父类。
+- 基础响应包装使用 `Result<T>`、`PageResult<T>`。分页 API 请求通过 `Pagination` 组合分页能力；只有分页字段时可直接使用 `PageQueryRequest`，同时具有 Client、Channel 或业务条件时由请求类型自行实现该接口，不以分页类作为共同父类。
 - `PageQuery` 是接口层完成默认值解析后交给 application、repository 和 persistence 使用的不可变分页条件；非法页码或页大小直接拒绝，不做静默纠正。
 - 完整构造后不再变化的数据载体优先使用 `record`；`Result`、`PageResult`、`PageQuery` 均为不可变值。Spring MVC 请求绑定、请求头回填和配置属性等需要分步写入的类型保留为普通类，不为追求形式统一而改为 `record`。
 - `ClientRequest` 是所有入口客户端上下文请求的共同基类。渠道与认证会话不是互斥层级：分别由 `ChannelContext`、`AuthenticatedSessionContext` 表达可组合能力；框架提供只含渠道、只含认证会话和同时组合两者的具体请求类型。能力接口字段带 Bean Validation 约束，使用方只组合实际需要的上下文。
