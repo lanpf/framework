@@ -2,16 +2,21 @@ package com.cloud.framework.core;
 
 import com.cloud.framework.core.error.BaseException;
 import com.cloud.framework.core.error.Error;
+import org.apache.commons.lang3.Validate;
+
 import java.util.List;
 
 public record PageResult<T>(String code, String message, List<T> data, Long total)
         implements BaseResult {
 
     public PageResult {
-        if (!DEFAULT_SUCCESS_CODE.equals(code) && data != null) {
-            throw new IllegalArgumentException("Data must be null if response code is not success");
-        }
-        data = data == null ? null : List.copyOf(data);
+        Validate.isTrue(
+                DEFAULT_SUCCESS_CODE.equals(code) || data == null,
+                "Data must be null if response code is not success"
+        );
+        data = data == null
+                ? (DEFAULT_SUCCESS_CODE.equals(code) ? List.of() : null)
+                : List.copyOf(data);
     }
 
     public String getCode() {

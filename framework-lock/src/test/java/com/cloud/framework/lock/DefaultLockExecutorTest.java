@@ -3,6 +3,7 @@ package com.cloud.framework.lock;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -51,6 +52,33 @@ class DefaultLockExecutorTest {
                 }
         ));
         assertFalse(lock.isLocked());
+    }
+
+    @Test
+    void shouldRejectNullLockProvider() {
+        assertThrows(NullPointerException.class, () -> new DefaultLockExecutor(null));
+    }
+
+    @Test
+    void shouldRejectNullContext() {
+        DefaultLockExecutor executor = new DefaultLockExecutor(lockNames -> new ReentrantLock());
+        Callable<String> callback = () -> "created";
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> executor.execute(null, callback)
+        );
+        assertEquals("context must not be null", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectNullCallback() {
+        DefaultLockExecutor executor = new DefaultLockExecutor(lockNames -> new ReentrantLock());
+
+        assertThrows(
+                NullPointerException.class,
+                () -> executor.execute(new LockContext("create-order"), (Callable<String>) null)
+        );
     }
 
     private static final class UnavailableLock extends ReentrantLock {

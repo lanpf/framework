@@ -6,7 +6,7 @@
 
     <groupId>com.cloud</groupId>
     <artifactId>framework-dependencies</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>framework-dependencies</name>
@@ -23,10 +23,10 @@
         <nimbus-jose-jwt.version>9.47</nimbus-jose-jwt.version>
 
         <cosid.version>2.15.2</cosid.version>
-        <guava.version>33.6.0-jre</guava.version>
+        <guava.version>33.7.1-jre</guava.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-collections4.version>4.6.0</commons-collections4.version>
-        <commons-codec.version>1.22.0</commons-codec.version>
+        <commons-codec.version>1.22.1</commons-codec.version>
 
         <mybatis.version>3.5.19</mybatis.version>
         <mybatis-spring.version>3.0.5</mybatis-spring.version>
@@ -40,7 +40,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <mapstruct.version>1.6.3</mapstruct.version>
 
-        <framework-bom.version>0.3.0-SNAPSHOT</framework-bom.version>
+        <framework-bom.version>0.4.0-SNAPSHOT</framework-bom.version>
     </properties>
 
     <dependencyManagement>

@@ -2,13 +2,15 @@ package com.cloud.framework.core;
 
 import com.cloud.framework.core.error.BaseException;
 import com.cloud.framework.core.error.Error;
+import org.apache.commons.lang3.Validate;
 
 public record Result<T>(String code, String message, T data) implements BaseResult {
 
     public Result {
-        if (!DEFAULT_SUCCESS_CODE.equals(code) && data != null) {
-            throw new IllegalArgumentException("Data must be null if response code is not success");
-        }
+        Validate.isTrue(
+                DEFAULT_SUCCESS_CODE.equals(code) || data == null,
+                "Data must be null if response code is not success"
+        );
     }
 
     public String getCode() {

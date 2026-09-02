@@ -8,6 +8,7 @@ public final class RequestHeader {
     public static final String CHANNEL_CODE = "X-Channel-Code";
     public static final String USER_ID = "X-User-Id";
     public static final String SESSION_ID = "X-Session-Id";
+    public static final String SUBJECT_TYPE = "X-Subject-Type";
 
     private RequestHeader() {
     }

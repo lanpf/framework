@@ -57,4 +57,20 @@ class ResultTest {
         assertThatThrownBy(() -> new PageResult<>("400001", "failed", List.of("a"), 1L))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void shouldNormalizeNullSuccessPageDataToEmpty() {
+        PageResult<String> result = PageResult.success(null, 0L);
+
+        assertThat(result.data()).isEmpty();
+        assertThat(result.total()).isEqualTo(0L);
+    }
+
+    @Test
+    void shouldKeepNullDataOnFailurePageResult() {
+        PageResult<String> result = PageResult.failure("400001", "failed");
+
+        assertThat(result.data()).isNull();
+        assertThat(result.isSuccess()).isFalse();
+    }
 }

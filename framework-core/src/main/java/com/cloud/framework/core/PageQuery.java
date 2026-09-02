@@ -1,5 +1,7 @@
 package com.cloud.framework.core;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * 已完成默认值解析和合法性校验的内部分页查询条件。
  */
@@ -8,12 +10,11 @@ public record PageQuery(int pageNo, int pageSize) {
     private static final PageQuery DEFAULT = new PageQuery(Pagination.DEFAULT_PAGE_NO, Pagination.DEFAULT_PAGE_SIZE);
 
     public PageQuery {
-        if (pageNo < Pagination.DEFAULT_PAGE_NO) {
-            throw new IllegalArgumentException("pageNo must be positive");
-        }
-        if (pageSize < 1 || pageSize > Pagination.MAX_PAGE_SIZE) {
-            throw new IllegalArgumentException("pageSize must be between 1 and " + Pagination.MAX_PAGE_SIZE);
-        }
+        Validate.isTrue(pageNo >= Pagination.DEFAULT_PAGE_NO, "pageNo must be positive");
+        Validate.isTrue(
+                pageSize >= 1 && pageSize <= Pagination.MAX_PAGE_SIZE,
+                "pageSize must be between 1 and " + Pagination.MAX_PAGE_SIZE
+        );
     }
 
     public int zeroBasedPageNo() {
@@ -36,9 +37,7 @@ public record PageQuery(int pageNo, int pageSize) {
     }
 
     public static PageQuery from(Pagination pagination) {
-        if (pagination == null) {
-            throw new IllegalArgumentException("pagination must not be null");
-        }
+        Validate.notNull(pagination, "pagination must not be null");
         return of(pagination.getPageNo(), pagination.getPageSize());
     }
 

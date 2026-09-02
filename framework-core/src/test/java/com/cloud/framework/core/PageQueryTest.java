@@ -49,6 +49,13 @@ class PageQueryTest {
     }
 
     @Test
+    void shouldRejectNullPagination() {
+        assertThatThrownBy(() -> PageQuery.from(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("pagination must not be null");
+    }
+
+    @Test
     void shouldValidatePaginationRequestContract() {
         Validator validator = Validation.byDefaultProvider()
                 .configure()
