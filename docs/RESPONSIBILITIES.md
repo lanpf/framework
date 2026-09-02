@@ -4,7 +4,17 @@
 
 ## 工程职责
 
-`framework` 定义与具体运行技术无关的基础契约、领域抽象和通用能力，基于 Java 17 构建，不负责 Spring Boot 自动配置或具体中间件适配。服务通过 `framework-bom` 获取 module 版本约束，通过 `framework-dependencies` 获取完整依赖版本约束。
+`framework` 定义与具体运行技术无关的基础契约、领域抽象和通用能力，基于 Java 17 构建。服务通过 `framework-bom` 获取 module 版本约束，通过 `framework-dependencies` 获取完整依赖版本约束。
+
+## 不负责
+
+- Spring Boot 自动配置与具体中间件适配：由 `framework-starter` 工程负责。
+- 业务领域规则、服务领域模型：由各业务服务工程负责。
+- 持久化技术实现、消息 broker 实现：由 `framework-starter` 对应 starter 与服务的技术适配 module 负责。
+
+## 协作契约
+
+- 本工程与 `framework-starter` 的契约：`framework-*` 契约由本工程定义并保持稳定，`framework-starter` 依赖这些契约完成技术适配；契约需要变更时两侧同步更新，以对方工程的 `docs/RESPONSIBILITIES.md` 为链接目标，不复制其内容。
 
 ## 模块与依赖
 
