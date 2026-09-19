@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class ConsistentHashMessageQueueSelector implements MessageQueueSelector {
     @Override
     public Integer select(@NotNull @Positive Integer partitions, @NotNull Object partitionArg) {
-        Object partitionKey = MessageHeaders.resolvePartitionKey(partitionArg);
+        Object partitionKey = PartitionKeyResolver.resolve(partitionArg);
         long hashCode = Hashing.murmur3_128()
                 .hashString(partitionKey.toString(), StandardCharsets.UTF_8)
                 .asLong();

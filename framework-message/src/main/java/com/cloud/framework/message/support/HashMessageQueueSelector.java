@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 public class HashMessageQueueSelector implements MessageQueueSelector {
     @Override
     public Integer select(@NotNull @Positive Integer partitions, @NotNull Object partitionArg) {
-        Object partitionKey = MessageHeaders.resolvePartitionKey(partitionArg);
+        Object partitionKey = PartitionKeyResolver.resolve(partitionArg);
         return Math.floorMod(partitionKey.hashCode(), partitions);
     }
 }

@@ -28,7 +28,7 @@ class EntityIdTest {
         }
 
         @Override
-        protected String validate(String value) {
+        protected String normalize(String value) {
             if (value == null || value.isBlank()) {
                 throw new IllegalArgumentException("value must not be blank");
             }

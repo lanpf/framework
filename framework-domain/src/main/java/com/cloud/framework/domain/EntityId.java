@@ -9,10 +9,10 @@ public abstract class EntityId<T> {
     private final T value;
 
     protected EntityId(T value) {
-        this.value = validate(value);
+        this.value = normalize(value);
     }
 
-    protected T validate(T value) {
+    protected T normalize(T value) {
         return value;
     }
 
