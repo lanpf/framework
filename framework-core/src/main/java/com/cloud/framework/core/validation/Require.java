@@ -3,7 +3,7 @@ package com.cloud.framework.core.validation;
 import com.cloud.framework.core.error.BaseException;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -33,13 +33,14 @@ public final class Require {
         return Optional.ofNullable(value).filter(v -> v.longValue() > 0).orElseThrow(exceptionSupplier);
     }
 
-    public static <T> void noDuplicates(Collection<T> values, Supplier<BaseException> exceptionSupplier) {
-        noDuplicates(values, UnaryOperator.identity(), exceptionSupplier);
+    public static <T> Set<T> noDuplicates(Collection<T> values, Supplier<BaseException> exceptionSupplier) {
+        return noDuplicates(values, UnaryOperator.identity(), exceptionSupplier);
     }
 
-    public static <T> void noDuplicates(Collection<T> values, UnaryOperator<T> valueOperator, Supplier<BaseException> exceptionSupplier) {
-        Set<T> indexed = new HashSet<>();
+    public static <T> Set<T> noDuplicates(Collection<T> values, UnaryOperator<T> valueOperator, Supplier<BaseException> exceptionSupplier) {
+        Set<T> indexed = new LinkedHashSet<>();
         notNull(values, exceptionSupplier).forEach(value -> that(valueOperator.apply(value), indexed::add, exceptionSupplier));
+        return indexed;
     }
 
     public static <T> T that(T value, Predicate<T> predicate, Supplier<BaseException> exceptionSupplier) {
