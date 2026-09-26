@@ -6,14 +6,23 @@ import lombok.Getter;
 public enum FrameworkError implements BaseError {
     // ===== 兜底 =====
     FRAMEWORK_ERROR(0, "框架异常"),
-
     // ===== 序列化/反序列化 =====
     SERIALIZATION_FAILED(1, "序列化或反序列化失败"),
 
+    // ===== 字段 =====
+    OBJECT_FILED_REQUIRED(10, "对象字段不能为空"),
+    OBJECT_FIELD_INVALID(11, "对象字段非法"),
+
+    // ===== 集合元素 =====
+    COLLECTION_ELEMENT_REQUIRED(20, "集合元素不能为空"),
+    COLLECTION_ELEMENT_INVALID(21, "集合元素非法"),
+    COLLECTION_ELEMENT_AMBIGUOUS(22, "集合元素存在冲突"),
+
+
     // ===== 资源与容量 =====
-    RESOURCE_EXHAUSTED(10, "资源耗尽"),
-    THREAD_POOL_REJECTED(11, "线程池拒绝执行"),
-    CONNECTION_POOL_EXHAUSTED(12, "连接池耗尽"),
+    RESOURCE_EXHAUSTED(90, "资源耗尽"),
+    THREAD_POOL_REJECTED(91, "线程池拒绝执行"),
+    CONNECTION_POOL_EXHAUSTED(92, "连接池耗尽"),
 
     // ===== 流量防护 / 服务保护 =====
     RATE_LIMIT_EXCEEDED(100, "请求限流"),
