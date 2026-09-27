@@ -45,7 +45,7 @@
 - 错误与异常：完整错误码固定 6 位（3 位服务前缀 + 3 位本地码），由 `ErrorCodeRange` 定义取值范围与格式化，`ErrorCodeNamespace` 划分 FRAMEWORK、CORE、BIZ、EDGE、RESERVED 前缀段，`ErrorCodePrefix` 定位服务前缀，`BaseError` 组合前缀与本地码。框架内部错误使用 `FrameworkError` 枚举（中文消息模板）与 `FrameworkException`；服务异常共同基类为 `BaseException`。错误消息以 `命名空间:模板` 形式输出。
 - 校验断言：`Require` 面向业务语义断言（非空、非空白、集合/Map 非空、正数），由调用方决定抛出的业务异常；Spring 解耦 module 的技术性前置条件使用 `org.apache.commons.lang3.Validate` 直接快速失败。
 - 命名空间与资源命名：`Namespaced` 声明命名空间载体，`NamespaceResolver` 解析命名空间前缀，`ResourceNameResolver` 把业务键段解析为最终资源名（分隔符 `:`，跳过空白键段）；`DefaultResourceNameResolver` 只拼接键段，`NamespacedResourceNameResolver` 在键段前注入命名空间。
-- 其它基础能力：`RestClientProperties` 提供连接/读取超时的配置默认值与约束；`MapStructConfig` 提供组件模型为 Spring、忽略未映射字段的公共 Mapper 配置。
+- 其它基础能力：`RestClientProperties` 提供连接/读取超时的配置默认值与约束；`MapStructConfig` 提供组件模型为 Spring、未映射目标字段按 ERROR 校验的公共 Mapper 配置；映射白名单用方法级 `@BeanMapping(ignoreByDefault = true)` 显式声明，不得以局部 `unmappedTargetPolicy = IGNORE` 替代。
 - 完整构造后不再变化的数据载体优先使用 `record`；`Result`、`PageResult`、`PageQuery` 均为不可变值。Spring MVC 请求绑定、请求头回填和配置属性等需要分步写入的类型保留为普通类，不为追求形式统一而改为 `record`。
 
 ### `framework-domain`
