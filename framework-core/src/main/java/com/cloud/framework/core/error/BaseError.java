@@ -39,7 +39,7 @@ public interface BaseError extends Error {
     @Override
     default String getErrorMessage() {
         String configuredMessage = getMessage();
-        String resolvedMessage = configuredMessage != null && !configuredMessage.trim().isEmpty()
+        String resolvedMessage = configuredMessage != null && !configuredMessage.isBlank()
                 ? configuredMessage
                 : name().replace('_', ' ');
         return getPrefix().getNamespace().name() + ":" + resolvedMessage;
