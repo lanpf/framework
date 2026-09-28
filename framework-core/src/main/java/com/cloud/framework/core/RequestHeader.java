@@ -1,15 +1,16 @@
 package com.cloud.framework.core;
 
+import com.cloud.framework.core.validation.Require;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /** 已登记的 HTTP Header 契约；分类不代表请求传入值可信。 */
 @Getter
@@ -30,33 +31,23 @@ public enum RequestHeader {
 
     private final String headerName;
     private final HeaderType headerType;
-    private static final Map<String, RequestHeader> BY_HEADER_NAME = index();
+    private static final Map<String, RequestHeader> INDEXED
+            = Require.noDuplicates(List.of(values()), v -> normalizeName(v.headerName));
 
     public String headerName() { return getHeaderName(); }
     public HeaderType headerType() { return getHeaderType(); }
 
     public static Optional<RequestHeader> fromName(String headerName) {
-        Objects.requireNonNull(headerName, "Header name must not be null");
-        return Optional.ofNullable(BY_HEADER_NAME.get(normalize(headerName)));
+        return Optional.ofNullable(INDEXED.get(normalizeName(Require.notBlank(headerName))));
     }
 
     public static Set<RequestHeader> fromType(HeaderType headerType) {
-        Objects.requireNonNull(headerType, "Header headerType must not be null");
-        return Arrays.stream(values()).filter(header -> header.headerType == headerType)
+        Require.notNull(headerType);
+        return INDEXED.values().stream().filter(v -> v.headerType == headerType)
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    private static String normalize(String name) {
-        return name.toLowerCase(Locale.ROOT);
-    }
-
-    private static Map<String, RequestHeader> index() {
-        Map<String, RequestHeader> index = new HashMap<>();
-        for (RequestHeader header : values()) {
-            if (index.putIfAbsent(normalize(header.headerName), header) != null) {
-                throw new IllegalStateException("Duplicate normalized header name");
-            }
-        }
-        return Map.copyOf(index);
+    public static String normalizeName(String name) {
+        return name == null ? null : name.toLowerCase(Locale.ROOT);
     }
 }
