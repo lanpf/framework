@@ -88,7 +88,7 @@ public final class Require {
         Map<K, V> indexed = new LinkedHashMap<>();
         notNull(values).forEach(value ->
             that(notNull(keyOperator.apply(notNull(value))),
-                    k -> indexed.putIfAbsent(k, value) != null,
+                    k -> indexed.putIfAbsent(k, value) == null,
                     exceptionSupplier)
         );
         return indexed;
