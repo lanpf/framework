@@ -65,9 +65,10 @@ public final class Require {
 
     public static <T> Set<T> noDuplicates(Collection<T> values, Supplier<BaseException> exceptionSupplier) {
         Set<T> indexed = new LinkedHashSet<>();
-        notNull(values).forEach(value -> that(notNull(value, FrameworkException::missingCollectionElement),
-                indexed::add,
-                exceptionSupplier));
+        notNull(values).forEach(value ->
+                that(notNull(value, FrameworkException::missingCollectionElement),
+                        indexed::add,
+                        exceptionSupplier));
         return indexed;
     }
 
@@ -79,15 +80,17 @@ public final class Require {
         return Optional.ofNullable(values).filter(v -> !v.isEmpty()).orElseThrow(exceptionSupplier);
     }
 
-    public static <K, T> Map<K, T> noDuplicates(Collection<T> values, Function<T, K> keyOperator) {
+    public static <K, V> Map<K, V> noDuplicates(Collection<V> values, Function<V, K> keyOperator) {
         return noDuplicates(values, keyOperator,() -> new FrameworkException(FrameworkError.COLLECTION_ELEMENT_AMBIGUOUS));
     }
 
-    public static <K, T> Map<K, T> noDuplicates(Collection<T> values, Function<T, K> keyOperator, Supplier<BaseException> exceptionSupplier) {
-        Map<K, T> indexed = new LinkedHashMap<>();
-        notNull(values).forEach(value -> that(notNull(keyOperator.apply(value), FrameworkException::missingCollectionElement),
-                        v -> indexed.putIfAbsent(v, value) != null,
-                        exceptionSupplier));
+    public static <K, V> Map<K, V> noDuplicates(Collection<V> values, Function<V, K> keyOperator, Supplier<BaseException> exceptionSupplier) {
+        Map<K, V> indexed = new LinkedHashMap<>();
+        notNull(values).forEach(value ->
+            that(notNull(keyOperator.apply(notNull(value))),
+                    k -> indexed.putIfAbsent(k, value) != null,
+                    exceptionSupplier)
+        );
         return indexed;
     }
 
