@@ -1,10 +1,10 @@
 package com.cloud.framework.core;
 
+import com.cloud.framework.core.error.FrameworkException;
 import com.cloud.framework.core.validation.Require;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +31,10 @@ public enum RequestHeader {
 
     private final String headerName;
     private final HeaderType headerType;
+
+    private static final int MAX_NAME_LENGTH = 128;
+    private static final String NAME_TOKEN = "[!#$%&'*+.^_`|~0-9A-Za-z-]+";
+
     private static final Map<String, RequestHeader> INDEXED
             = Require.noDuplicates(List.of(values()), v -> normalizeName(v.headerName));
 
@@ -38,16 +42,25 @@ public enum RequestHeader {
     public HeaderType headerType() { return getHeaderType(); }
 
     public static Optional<RequestHeader> fromName(String headerName) {
-        return Optional.ofNullable(INDEXED.get(normalizeName(Require.notBlank(headerName))));
+        String normalizedName = normalizeName(headerName);
+        return normalizedName == null
+                ? Optional.empty()
+                : Optional.ofNullable(INDEXED.get(normalizedName));
     }
 
     public static Set<RequestHeader> fromType(HeaderType headerType) {
-        Require.notNull(headerType);
-        return INDEXED.values().stream().filter(v -> v.headerType == headerType)
-                .collect(Collectors.toUnmodifiableSet());
+        return headerType == null
+                ? Set.of()
+                : INDEXED.values().stream().filter(v -> v.headerType == headerType).collect(Collectors.toUnmodifiableSet());
     }
 
-    public static String normalizeName(String name) {
-        return name == null ? null : name.toLowerCase(Locale.ROOT);
+    public static String normalizeName(String headerName) {
+        if (headerName == null) {
+            return null;
+        }
+        if (headerName.length() <= MAX_NAME_LENGTH && headerName.matches(NAME_TOKEN)) {
+            return headerName.toLowerCase(Locale.ROOT);
+        }
+        throw FrameworkException.invalidObject();
     }
 }

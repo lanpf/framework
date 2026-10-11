@@ -9,15 +9,10 @@ public enum FrameworkError implements BaseError {
     // ===== 序列化/反序列化 =====
     SERIALIZATION_FAILED(1, "序列化或反序列化失败"),
 
-    // ===== 字段 =====
-    OBJECT_FILED_REQUIRED(10, "对象字段不能为空"),
-    OBJECT_FIELD_INVALID(11, "对象字段非法"),
-
-    // ===== 集合元素 =====
-    COLLECTION_ELEMENT_REQUIRED(20, "集合元素不能为空"),
-    COLLECTION_ELEMENT_INVALID(21, "集合元素非法"),
-    COLLECTION_ELEMENT_AMBIGUOUS(22, "集合元素存在冲突"),
-
+    // ===== 对象 =====
+    OBJECT_REQUIRED(10, "对象不能为空"),
+    OBJECT_INVALID(11, "对象非法"),
+    OBJECT_AMBIGUOUS(12, "对象存在冲突"),
 
     // ===== 资源与容量 =====
     RESOURCE_EXHAUSTED(90, "资源耗尽"),

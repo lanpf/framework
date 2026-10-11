@@ -22,19 +22,11 @@ public class FrameworkException extends BaseException {
         return new FrameworkException(FrameworkError.FRAMEWORK_ERROR);
     }
 
-    public static FrameworkException missingObjectField() {
-        return new FrameworkException(FrameworkError.OBJECT_FILED_REQUIRED);
+    public static FrameworkException missingObject() {
+        return new FrameworkException(FrameworkError.OBJECT_REQUIRED);
     }
 
-    public static FrameworkException invalidObjectField() {
-        return new FrameworkException(FrameworkError.OBJECT_FIELD_INVALID);
-    }
-
-    public static FrameworkException missingCollectionElement() {
-        return new FrameworkException(FrameworkError.COLLECTION_ELEMENT_REQUIRED);
-    }
-
-    public static FrameworkException invalidCollectionElement() {
-        return new FrameworkException(FrameworkError.COLLECTION_ELEMENT_INVALID);
+    public static FrameworkException invalidObject() {
+        return new FrameworkException(FrameworkError.OBJECT_INVALID);
     }
 }
