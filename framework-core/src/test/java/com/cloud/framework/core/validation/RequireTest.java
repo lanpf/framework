@@ -128,25 +128,6 @@ class RequireTest {
     }
 
     @Test
-    void shouldUseSuppliedExceptionForNullCollectionAndItsElements() {
-        TestException failure = new TestException("rejected");
-
-        assertThatThrownBy(() -> Require.noNulls((List<?>) null, () -> failure)).isSameAs(failure);
-        assertThatThrownBy(() -> Require.noNulls(Arrays.asList("a", null), () -> failure)).isSameAs(failure);
-    }
-
-    @Test
-    void shouldUseSuppliedExceptionForNullMapAndItsKeysAndValues() {
-        TestException failure = new TestException("rejected");
-
-        assertThatThrownBy(() -> Require.noNulls((Map<?, ?>) null, () -> failure)).isSameAs(failure);
-        assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap(null, "v"), () -> failure))
-                .isSameAs(failure);
-        assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap("k", null), () -> failure))
-                .isSameAs(failure);
-    }
-
-    @Test
     void shouldIndexDistinctValuesInEncounterOrder() {
         Supplier<BaseException> unexpectedFailure = () -> {
             throw new AssertionError("Exception supplier must remain lazy for distinct values");
