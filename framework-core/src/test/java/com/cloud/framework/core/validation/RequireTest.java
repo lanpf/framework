@@ -138,6 +138,27 @@ class RequireTest {
     }
 
     @Test
+    void shouldUseSuppliedExceptionForNullContainersAndElements() {
+        TestException failure = new TestException("rejected");
+
+        assertThatThrownBy(() -> Require.noNulls((List<?>) null, () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> Require.noNulls(Arrays.asList("a", null), () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> Require.noNulls((Map<?, ?>) null, () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap(null, "v"), () -> failure))
+                .isSameAs(failure);
+        assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap("k", null), () -> failure))
+                .isSameAs(failure);
+    }
+
+    @Test
+    void shouldPreserveBatchNullParameterError() {
+        Require.allNotNull("a", 1);
+        assertThatThrownBy(() -> Require.allNotNull("a", null))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_REQUIRED.errorCode());
+    }
+
+    @Test
     void shouldRejectDuplicateValuesWithDefaultOrSuppliedException() {
         TestException failure = new TestException("rejected");
 

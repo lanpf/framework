@@ -1,4 +1,4 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.response;
 
 import java.io.Serializable;
 import java.util.Objects;

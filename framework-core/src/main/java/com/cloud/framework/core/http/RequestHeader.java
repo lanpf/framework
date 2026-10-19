@@ -1,4 +1,4 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.http;
 
 import com.cloud.framework.core.error.FrameworkException;
 import com.cloud.framework.core.validation.Require;

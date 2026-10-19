@@ -1,11 +1,8 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.pagination;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
 
-/**
- * 可与客户端、渠道及业务查询条件组合的分页请求能力。
- */
 public interface Pagination {
 
     int DEFAULT_PAGE_NO = 1;

@@ -1,4 +1,4 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.request;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

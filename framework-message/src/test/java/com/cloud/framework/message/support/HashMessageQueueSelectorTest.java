@@ -41,4 +41,14 @@ class HashMessageQueueSelectorTest {
         assertThatThrownBy(() -> selector.select(4, Map.of()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void shouldRejectNonPositivePartitionCountsWithoutValidationProxy() {
+        assertThatThrownBy(() -> selector.select(0, "key"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("partitions must be positive");
+        assertThatThrownBy(() -> selector.select(-4, "key"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("partitions must be positive");
+        assertThatThrownBy(() -> selector.select(null, "key"))
+                .isInstanceOf(NullPointerException.class).hasMessage("partitions must not be null");
+    }
 }

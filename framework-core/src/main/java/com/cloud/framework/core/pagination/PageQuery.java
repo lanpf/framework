@@ -1,10 +1,7 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.pagination;
 
 import org.apache.commons.lang3.Validate;
 
-/**
- * 已完成默认值解析和合法性校验的内部分页查询条件。
- */
 public record PageQuery(int pageNo, int pageSize) {
 
     private static final PageQuery DEFAULT = new PageQuery(Pagination.DEFAULT_PAGE_NO, Pagination.DEFAULT_PAGE_SIZE);

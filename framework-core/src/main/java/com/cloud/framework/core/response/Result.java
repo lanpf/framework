@@ -1,9 +1,16 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.response;
 
 import com.cloud.framework.core.error.BaseException;
 import com.cloud.framework.core.error.Error;
 import org.apache.commons.lang3.Validate;
 
+/**
+ * API response envelope retaining the original payload reference without taking ownership of its state.
+ * No payload copy, snapshot, or deep immutability is promised. Callers provide any isolation and
+ * publication stability required by the payload's own contract; arbitrary payloads need not be immutable.
+ *
+ * @param <T> payload type, preserved without runtime-type conversion
+ */
 public record Result<T>(String code, String message, T data) implements BaseResult {
 
     public Result {

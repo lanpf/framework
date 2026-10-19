@@ -1,6 +1,7 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.http;
 
 import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 

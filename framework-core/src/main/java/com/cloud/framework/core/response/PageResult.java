@@ -1,7 +1,8 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.response;
 
 import com.cloud.framework.core.error.BaseException;
 import com.cloud.framework.core.error.Error;
+import com.cloud.framework.core.util.NullSafe;
 import org.apache.commons.lang3.Validate;
 
 import java.util.List;
@@ -9,14 +10,21 @@ import java.util.List;
 public record PageResult<T>(String code, String message, List<T> data, Long total)
         implements BaseResult {
 
+    /**
+     * Creates a response with an immutable shallow copy of successful page data; elements are shared.
+     *
+     * @param code response code
+     * @param message response message
+     * @param data may be null: normalized to empty on success, and required to be null on failure;
+     *             non-null elements are required
+     * @param total total item count, retained as supplied
+     */
     public PageResult {
         Validate.isTrue(
                 DEFAULT_SUCCESS_CODE.equals(code) || data == null,
                 "Data must be null if response code is not success"
         );
-        data = data == null
-                ? (DEFAULT_SUCCESS_CODE.equals(code) ? List.of() : null)
-                : List.copyOf(data);
+        data = DEFAULT_SUCCESS_CODE.equals(code) ? NullSafe.copyToList(data) : null;
     }
 
     public String getCode() {

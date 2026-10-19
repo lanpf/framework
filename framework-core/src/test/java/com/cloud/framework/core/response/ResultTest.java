@@ -1,4 +1,4 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

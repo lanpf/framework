@@ -1,4 +1,4 @@
-package com.cloud.framework.core;
+package com.cloud.framework.core.http;
 
 public enum HeaderType {
     CONTEXT,

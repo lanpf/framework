@@ -27,7 +27,7 @@ public final class Require {
 
     public static void allNotNull(Object... values) {
         for (Object v : notNull(values)) {
-            notNull(v);
+            valid(v, Objects::nonNull, FrameworkException::missingObject);
         }
     }
 
@@ -84,7 +84,7 @@ public final class Require {
     }
 
     public static <T extends Collection<?>> T noNulls(T values) {
-        return noNulls(values, FrameworkException::invalidObject);
+        return noNulls(notNull(values), FrameworkException::invalidObject);
     }
 
     /**
@@ -92,12 +92,12 @@ public final class Require {
      * an empty collection is valid, and the original collection is returned.
      */
     public static <T extends Collection<?>> T noNulls(T values, Supplier<BaseException> exceptionSupplier) {
-        notNull(values).forEach(v -> notNull(v, exceptionSupplier));
+        notNull(values, exceptionSupplier).forEach(v -> valid(v, Objects::nonNull, exceptionSupplier));
         return values;
     }
 
     public static <T extends Map<?, ?>> T noNulls(T values) {
-        return noNulls(values, FrameworkException::invalidObject);
+        return noNulls(notNull(values), FrameworkException::invalidObject);
     }
 
     /**
@@ -105,9 +105,9 @@ public final class Require {
      * an empty map is valid, and the original map is returned.
      */
     public static <T extends Map<?, ?>> T noNulls(T values, Supplier<BaseException> exceptionSupplier) {
-        notNull(values).forEach((k, v) -> {
-            notNull(k, exceptionSupplier);
-            notNull(v, exceptionSupplier);
+        notNull(values, exceptionSupplier).forEach((k, v) -> {
+            valid(k, Objects::nonNull, exceptionSupplier);
+            valid(v, Objects::nonNull, exceptionSupplier);
         });
         return values;
     }
