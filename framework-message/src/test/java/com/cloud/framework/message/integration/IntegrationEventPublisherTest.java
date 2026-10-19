@@ -15,8 +15,10 @@ class IntegrationEventPublisherTest {
         List<IntegrationEvent> published = new ArrayList<>();
         IntegrationEventPublisher publisher = published::add;
 
-        assertThatThrownBy(() -> publisher.publishAll(null)).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> publisher.publishAll(List.of())).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> publisher.publishAll(null))
+                .isInstanceOf(NullPointerException.class).hasMessage("events must not be null or empty");
+        assertThatThrownBy(() -> publisher.publishAll(List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("events must not be null or empty");
         assertThat(published).isEmpty();
     }
 
