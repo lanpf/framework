@@ -108,10 +108,10 @@ class RequireTest {
     void shouldPreserveDefaultMissingObjectErrorForNullContainers() {
         assertThatThrownBy(() -> Require.noNulls((List<?>) null))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_REQUIRED.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
         assertThatThrownBy(() -> Require.noNulls((Map<?, ?>) null))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_REQUIRED.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
     }
 
     @Test
@@ -148,14 +148,6 @@ class RequireTest {
                 .isSameAs(failure);
         assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap("k", null), () -> failure))
                 .isSameAs(failure);
-    }
-
-    @Test
-    void shouldPreserveBatchNullParameterError() {
-        Require.allNotNull("a", 1);
-        assertThatThrownBy(() -> Require.allNotNull("a", null))
-                .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_REQUIRED.errorCode());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package com.cloud.framework.core.util;
 
+import com.cloud.framework.core.error.BaseException;
+import com.cloud.framework.core.error.FrameworkException;
 import com.cloud.framework.core.validation.Require;
 
 import java.util.Collection;
@@ -11,120 +13,138 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class NullSafe {
+
+    private static final Supplier<BaseException> NULL_ELEMENT =
+            () -> FrameworkException.illegalArgument("The collection must not contain null elements");
+
+    private static final Supplier<BaseException> NULL_KEY_OR_VALUE =
+            () -> FrameworkException.illegalArgument("The map must not contain null keys or values");
+
     private NullSafe() {
     }
 
-    public static <T> void forEach(Collection<T> values, Consumer<T> consumer) {
+    // ---------- Collection ----------
+
+    public static <T> void visit(Collection<T> values, Consumer<T> consumer) {
+        visit(values, null, consumer);
+    }
+
+    public static <T> void visit(Collection<T> values, Supplier<BaseException> error, Consumer<T> consumer) {
+        Require.notNull(consumer, "The consumer must not be null");
         if (values == null) {
             return;
         }
-        visitNonNull(values, consumer);
+        visitNoNulls(values, error, consumer);
     }
 
     public static <T> List<T> copyToList(Collection<T> values) {
-        return copyToList(values, null);
+        return copyToList(values, null, null);
     }
 
-    public static <T> List<T> copyToList(Collection<T> values, Consumer<T> consumer) {
+    public static <T> List<T> copyToList(Collection<T> values, Supplier<BaseException> error) {
+        return copyToList(values, error, null);
+    }
+
+    public static <T> List<T> copyToList(Collection<T> values, Supplier<BaseException> error, Consumer<T> consumer) {
         if (values == null) {
             return List.of();
         }
-        visitNonNull(values, consumer);
+        visitNoNulls(values, error, consumer);
         return List.copyOf(values);
     }
 
     public static <T> Set<T> copyToSet(Collection<T> values) {
-        return copyToSet(values, null);
+        return copyToSet(values, null, null);
     }
 
-    public static <T> Set<T> copyToSet(Collection<T> values, Consumer<T> consumer) {
+    public static <T> Set<T> copyToSet(Collection<T> values, Supplier<BaseException> error) {
+        return copyToSet(values, error, null);
+    }
+
+    public static <T> Set<T> copyToSet(Collection<T> values, Supplier<BaseException> error, Consumer<T> consumer) {
         if (values == null) {
             return Set.of();
         }
-        visitNonNull(values, consumer);
+        visitNoNulls(values, error, consumer);
         return Set.copyOf(values);
     }
 
-    /**
-     * Returns an independent, unmodifiable shallow copy in first-encounter order, without sorting.
-     * Duplicate elements retain their first position; null elements are rejected.
-     *
-     * @param values may be null, equivalent to an empty collection
-     */
     public static <T> Set<T> copyToOrderedSet(Collection<T> values) {
-        return copyToOrderedSet(values, null);
+        return copyToOrderedSet(values, null, null);
     }
 
-    /**
-     * Copies in first-encounter order after validating all elements and invoking the optional consumer
-     * for each input element, including duplicates. The returned shallow copy is unmodifiable.
-     *
-     * @param values may be null, equivalent to an empty collection; null elements are rejected
-     * @param consumer may be null; never invoked for a null container or when element validation fails
-     */
-    public static <T> Set<T> copyToOrderedSet(Collection<T> values, Consumer<T> consumer) {
+    public static <T> Set<T> copyToOrderedSet(Collection<T> values, Supplier<BaseException> error) {
+        return copyToOrderedSet(values, error, null);
+    }
+
+    public static <T> Set<T> copyToOrderedSet(Collection<T> values, Supplier<BaseException> error, Consumer<T> consumer) {
         if (values == null) {
             return Set.of();
         }
-        visitNonNull(values, consumer);
+        visitNoNulls(values, error, consumer);
         return Collections.unmodifiableSet(new LinkedHashSet<>(values));
     }
 
-    public static <K, V> void forEach(Map<K, V> values, BiConsumer<K, V> consumer) {
+    // ---------- Map ----------
+
+    public static <K, V> void visit(Map<K, V> values, BiConsumer<K, V> consumer) {
+        visit(values, null, consumer);
+    }
+
+    public static <K, V> void visit(Map<K, V> values, Supplier<BaseException> error, BiConsumer<K, V> consumer) {
+        Require.notNull(consumer, "The consumer must not be null");
         if (values == null) {
             return;
         }
-        visitNonNull(values, consumer);
+        visitNoNulls(values, error, consumer);
     }
 
     public static <K, V> Map<K, V> copyToMap(Map<K, V> values) {
-        return copyToMap(values, null);
+        return copyToMap(values, null, null);
     }
 
-    public static <K, V> Map<K, V> copyToMap(Map<K, V> values, BiConsumer<K, V> consumer) {
+    public static <K, V> Map<K, V> copyToMap(Map<K, V> values, Supplier<BaseException> error) {
+        return copyToMap(values, error, null);
+    }
+
+    public static <K, V> Map<K, V> copyToMap(Map<K, V> values, Supplier<BaseException> error, BiConsumer<K, V> consumer) {
         if (values == null) {
             return Map.of();
         }
-        visitNonNull(values, consumer);
+        visitNoNulls(values, error, consumer);
         return Map.copyOf(values);
     }
 
-    /**
-     * Returns an independent, unmodifiable shallow copy preserving the input's iteration order,
-     * without sorting. Null keys and values are rejected.
-     *
-     * @param values may be null, equivalent to an empty map
-     */
     public static <K, V> Map<K, V> copyToOrderedMap(Map<K, V> values) {
-        return copyToOrderedMap(values, null);
+        return copyToOrderedMap(values, null, null);
     }
 
-    /**
-     * Preserves the input's iteration order after validating all entries and invoking the optional
-     * consumer for each entry. The returned shallow copy is independent and unmodifiable.
-     *
-     * @param values may be null, equivalent to an empty map; null keys and values are rejected
-     * @param consumer may be null; never invoked for a null container or when entry validation fails
-     */
-    public static <K, V> Map<K, V> copyToOrderedMap(Map<K, V> values, BiConsumer<K, V> consumer) {
+    public static <K, V> Map<K, V> copyToOrderedMap(Map<K, V> values, Supplier<BaseException> error) {
+        return copyToOrderedMap(values, error, null);
+    }
+
+    public static <K, V> Map<K, V> copyToOrderedMap(Map<K, V> values, Supplier<BaseException> error, BiConsumer<K, V> consumer) {
         if (values == null) {
             return Map.of();
         }
-        visitNonNull(values, consumer);
+        visitNoNulls(values, error, consumer);
         return Collections.unmodifiableMap(new LinkedHashMap<>(values));
     }
 
-    private static <T> void visitNonNull(Collection<T> values, Consumer<T> consumer) {
-        Require.noNulls(values);
+    // ---------- internal ----------
+
+    private static <T> void visitNoNulls(Collection<T> values, Supplier<BaseException> error, Consumer<T> consumer) {
+        Require.noNulls(values, error != null ? error : NULL_ELEMENT);
         if (consumer != null) {
             values.forEach(consumer);
         }
     }
 
-    private static <K, V> void visitNonNull(Map<K, V> values, BiConsumer<K, V> consumer) {
-        Require.noNulls(values);
+    private static <K, V> void visitNoNulls(Map<K, V> values, Supplier<BaseException> error, BiConsumer<K, V> consumer) {
+        Require.noNulls(values, error != null ? error : NULL_KEY_OR_VALUE);
         if (consumer != null) {
             values.forEach(consumer);
         }

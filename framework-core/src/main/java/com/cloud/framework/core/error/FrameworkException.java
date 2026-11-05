@@ -18,15 +18,19 @@ public class FrameworkException extends BaseException {
         super(error, cause);
     }
 
-    public static FrameworkException unspecified() {
-        return new FrameworkException(FrameworkError.FRAMEWORK_ERROR);
+    public static FrameworkException illegalArgument(String message) {
+        return new FrameworkException(FrameworkError.ILLEGAL_ARGUMENT, message);
     }
 
-    public static FrameworkException missingObject() {
-        return new FrameworkException(FrameworkError.OBJECT_REQUIRED);
+    public static FrameworkException illegalArgument() {
+        return new FrameworkException(FrameworkError.ILLEGAL_ARGUMENT);
     }
 
-    public static FrameworkException invalidObject() {
-        return new FrameworkException(FrameworkError.OBJECT_INVALID);
+    public static FrameworkException illegalState(String message) {
+        return new FrameworkException(FrameworkError.ILLEGAL_STATE, message);
+    }
+
+    public static FrameworkException illegalState() {
+        return new FrameworkException(FrameworkError.ILLEGAL_STATE);
     }
 }

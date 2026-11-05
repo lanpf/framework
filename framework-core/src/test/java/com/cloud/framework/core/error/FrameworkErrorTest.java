@@ -10,7 +10,32 @@ class FrameworkErrorTest {
     @Test
     void shouldFormatCommonErrorCodeWithFixedSixDigits() {
         assertThat(FrameworkError.FRAMEWORK_ERROR.errorCode()).isEqualTo("100000");
-        assertThat(FrameworkError.FRAMEWORK_ERROR.errorMessage()).isEqualTo("FRAMEWORK:框架异常");
+        assertThat(FrameworkError.FRAMEWORK_ERROR.errorMessage()).isEqualTo("FRAMEWORK:Framework error");
+    }
+
+    @Test
+    void shouldExposeEnglishDefaultMessagesForEveryFrameworkError() {
+        for (FrameworkError error : FrameworkError.values()) {
+            assertThat(error.message()).as(error.name()).matches("(?=.*[A-Za-z])[\\x20-\\x7E]+");
+            assertThat(error.errorMessage()).isEqualTo("FRAMEWORK:" + error.message());
+            FrameworkException exception = new FrameworkException(error);
+            assertThat(exception.getErrorCode()).isEqualTo(error.errorCode());
+            assertThat(exception).hasMessage(error.errorMessage());
+        }
+    }
+
+    @Test
+    void shouldKeepExplicitTechnicalDiagnosticsWithoutChangingErrorCodes() {
+        assertThat(FrameworkException.unspecifiedError())
+                .hasMessage(FrameworkError.FRAMEWORK_ERROR.errorMessage());
+        assertThat(FrameworkException.requiredError())
+                .hasMessage(FrameworkError.OBJECT_REQUIRED.errorMessage());
+        assertThat(FrameworkException.invalidError())
+                .hasMessage(FrameworkError.OBJECT_INVALID.errorMessage());
+
+        FrameworkException exception = FrameworkException.requiredError("repository must not be null");
+        assertThat(exception.getErrorCode()).isEqualTo(FrameworkError.OBJECT_REQUIRED.errorCode());
+        assertThat(exception).hasMessage("repository must not be null");
     }
 
     @Test

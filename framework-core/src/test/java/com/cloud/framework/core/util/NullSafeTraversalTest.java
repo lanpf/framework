@@ -16,23 +16,23 @@ class NullSafeTraversalTest {
     @Test
     void shouldSkipNullContainersAndVisitValidInput() {
         List<String> visited = new ArrayList<>();
-        NullSafe.forEach((List<String>) null, visited::add);
-        NullSafe.forEach((Map<String, String>) null, (key, value) -> visited.add(value));
+        NullSafe.visit((List<String>) null, visited::add);
+        NullSafe.visit((Map<String, String>) null, (key, value) -> visited.add(value));
         assertThat(visited).isEmpty();
 
-        NullSafe.forEach(List.of("a", "b"), visited::add);
+        NullSafe.visit(List.of("a", "b"), visited::add);
         assertThat(visited).containsExactly("a", "b");
     }
 
     @Test
     void shouldValidateAllElementsBeforeCallingConsumer() {
         List<String> visited = new ArrayList<>();
-        assertThatThrownBy(() -> NullSafe.forEach(Arrays.asList("a", null), visited::add))
+        assertThatThrownBy(() -> NullSafe.visit(Arrays.asList("a", null), visited::add))
                 .isInstanceOf(FrameworkException.class);
         Map<String, String> entries = new LinkedHashMap<>();
         entries.put("first", "valid");
         entries.put("second", null);
-        assertThatThrownBy(() -> NullSafe.forEach(entries, (key, value) -> visited.add(value)))
+        assertThatThrownBy(() -> NullSafe.visit(entries, (key, value) -> visited.add(value)))
                 .isInstanceOf(FrameworkException.class);
         assertThat(visited).isEmpty();
     }

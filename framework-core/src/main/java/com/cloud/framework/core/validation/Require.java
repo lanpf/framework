@@ -1,9 +1,9 @@
 package com.cloud.framework.core.validation;
 
 import com.cloud.framework.core.error.BaseException;
-import com.cloud.framework.core.error.FrameworkError;
 import com.cloud.framework.core.error.FrameworkException;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -17,127 +17,147 @@ import java.util.function.Supplier;
 
 public final class Require {
 
-    public static <T> T valid(T value, Predicate<T> predicate) {
-        return valid(value, predicate, FrameworkException::invalidObject);
+    public static <T> T satisfies(T value, Predicate<T> condition) {
+        return satisfies(value, condition, "The value must not be null and must satisfy the required condition");
     }
 
-    public static <T> T valid(T value, Predicate<T> predicate, Supplier<BaseException> exceptionSupplier) {
-        return Optional.ofNullable(value).filter(predicate).orElseThrow(exceptionSupplier);
+    public static <T> T satisfies(T value, Predicate<T> condition, String errorMessage) {
+        return satisfies(value, condition, () -> FrameworkException.illegalArgument(errorMessage));
     }
 
-    public static void allNotNull(Object... values) {
-        for (Object v : notNull(values)) {
-            valid(v, Objects::nonNull, FrameworkException::missingObject);
-        }
-    }
-
-    public static void allNotBlank(String... values) {
-        for (String v : notNull(values)) {
-            notBlank(v);
-        }
-    }
-
-    public static void allPositive(Number... values) {
-        for (Number v : notNull(values)) {
-            positive(v);
-        }
+    public static <T> T satisfies(T value, Predicate<T> condition, Supplier<BaseException> error) {
+        return Optional.ofNullable(value).filter(condition).orElseThrow(error);
     }
 
     public static <T> T notNull(T value) {
-        return notNull(value, FrameworkException::missingObject);
+        return notNull(value, "The value must not be null");
     }
 
-    public static <T> T notNull(T value, Supplier<BaseException> exceptionSupplier) {
-        return valid(value, Objects::nonNull, exceptionSupplier);
+    public static <T> T notNull(T value, String errorMessage) {
+        return notNull(value, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <T> T notNull(T value, Supplier<BaseException> error) {
+        return satisfies(value, Objects::nonNull, error);
     }
 
     public static String notBlank(String value) {
-        return notBlank(value, FrameworkException::invalidObject);
+        return notBlank(value, "The string must not be null or blank");
     }
 
-    public static String notBlank(String value, Supplier<BaseException> exceptionSupplier) {
-        return valid(value, v -> !v.isBlank(), exceptionSupplier);
+    public static String notBlank(String value, String errorMessage) {
+        return notBlank(value, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static String notBlank(String value, Supplier<BaseException> error) {
+        return satisfies(value, v -> !v.isBlank(), error);
     }
 
     public static <T extends Number> T positive(T value) {
-        return positive(value, FrameworkException::invalidObject);
+        return positive(value, "The value must not be null and must be positive");
     }
 
-    public static <T extends Number> T positive(T value, Supplier<BaseException> exceptionSupplier) {
-        return valid(value, v -> v.longValue() > 0, exceptionSupplier);
+    public static <T extends Number> T positive(T value, String errorMessage) {
+        return positive(value, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <T extends Number> T positive(T value, Supplier<BaseException> error) {
+        return satisfies(value, v -> {
+            try {
+                return new BigDecimal(v.toString()).signum() > 0;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }, error);
     }
 
     public static <T extends Collection<?>> T notEmpty(T values) {
-        return notEmpty(values, FrameworkException::invalidObject);
+        return notEmpty(values, "The collection must not be null or empty");
     }
 
-    public static <T extends Collection<?>> T notEmpty(T values, Supplier<BaseException> exceptionSupplier) {
-        return valid(values, v -> !v.isEmpty(), exceptionSupplier);
+    public static <T extends Collection<?>> T notEmpty(T values, String errorMessage) {
+        return notEmpty(values, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <T extends Collection<?>> T notEmpty(T values, Supplier<BaseException> error) {
+        return satisfies(values, v -> !v.isEmpty(), error);
     }
 
     public static <T extends Map<?, ?>> T notEmpty(T values) {
-        return notEmpty(values, FrameworkException::invalidObject);
+        return notEmpty(values, "The map must not be null or empty");
     }
 
-    public static <T extends Map<?, ?>> T notEmpty(T values, Supplier<BaseException> exceptionSupplier) {
-        return valid(values, v -> !v.isEmpty(), exceptionSupplier);
+    public static <T extends Map<?, ?>> T notEmpty(T values, String errorMessage) {
+        return notEmpty(values, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <T extends Map<?, ?>> T notEmpty(T values, Supplier<BaseException> error) {
+        return satisfies(values, v -> !v.isEmpty(), error);
     }
 
     public static <T extends Collection<?>> T noNulls(T values) {
-        return noNulls(notNull(values), FrameworkException::invalidObject);
+        return noNulls(values, "The collection must not be null and must not contain null elements");
     }
 
-    /**
-     * Rejects a null container or null elements using the supplied exception;
-     * an empty collection is valid, and the original collection is returned.
-     */
-    public static <T extends Collection<?>> T noNulls(T values, Supplier<BaseException> exceptionSupplier) {
-        notNull(values, exceptionSupplier).forEach(v -> valid(v, Objects::nonNull, exceptionSupplier));
+    public static <T extends Collection<?>> T noNulls(T values, String errorMessage) {
+        return noNulls(values, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <T extends Collection<?>> T noNulls(T values, Supplier<BaseException> error) {
+        notNull(values, error).forEach(v -> notNull(v, error));
         return values;
     }
 
     public static <T extends Map<?, ?>> T noNulls(T values) {
-        return noNulls(notNull(values), FrameworkException::invalidObject);
+        return noNulls(values, "The map must not be null and must not contain null keys or values");
     }
 
-    /**
-     * Rejects a null container, key, or value using the supplied exception;
-     * an empty map is valid, and the original map is returned.
-     */
-    public static <T extends Map<?, ?>> T noNulls(T values, Supplier<BaseException> exceptionSupplier) {
-        notNull(values, exceptionSupplier).forEach((k, v) -> {
-            valid(k, Objects::nonNull, exceptionSupplier);
-            valid(v, Objects::nonNull, exceptionSupplier);
+    public static <T extends Map<?, ?>> T noNulls(T values, String errorMessage) {
+        return noNulls(values, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <T extends Map<?, ?>> T noNulls(T values, Supplier<BaseException> error) {
+        notNull(values, error).forEach((k, v) -> {
+            notNull(k, error);
+            notNull(v, error);
         });
         return values;
     }
 
     public static <T> Set<T> noDuplicates(Collection<T> values) {
-        return noDuplicates(values, () -> new FrameworkException(FrameworkError.OBJECT_AMBIGUOUS));
+        return noDuplicates(values, "The collection must not be null and must not contain null or duplicate elements");
     }
 
-    public static <T> Set<T> noDuplicates(Collection<T> values, Supplier<BaseException> exceptionSupplier) {
-        noNulls(values);
+    public static <T> Set<T> noDuplicates(Collection<T> values, String errorMessage) {
+        return noDuplicates(values, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <T> Set<T> noDuplicates(Collection<T> values, Supplier<BaseException> error) {
         Set<T> indexed = new LinkedHashSet<>();
-        values.forEach(v -> {
+        noNulls(values, error).forEach(v -> {
             if (!indexed.add(v)) {
-                throw exceptionSupplier.get();
+                throw error.get();
             }
         });
         return indexed;
     }
 
-    public static <K, V> Map<K, V> noDuplicates(Collection<V> values, Function<V, K> keyOperator) {
-        return noDuplicates(values, keyOperator, () -> new FrameworkException(FrameworkError.OBJECT_AMBIGUOUS));
+    public static <K, V> Map<K, V> noDuplicates(Collection<V> values, Function<V, K> keyMapper) {
+        return noDuplicates(values, keyMapper,
+                "The collection must not be null or contain null elements, "
+                        + "and keyMapper must not return null or duplicate keys");
     }
 
-    public static <K, V> Map<K, V> noDuplicates(Collection<V> values, Function<V, K> keyOperator, Supplier<BaseException> exceptionSupplier) {
-        noNulls(values);
+    public static <K, V> Map<K, V> noDuplicates(Collection<V> values, Function<V, K> keyMapper, String errorMessage) {
+        return noDuplicates(values, keyMapper, () -> FrameworkException.illegalArgument(errorMessage));
+    }
+
+    public static <K, V> Map<K, V> noDuplicates(Collection<V> values, Function<V, K> keyMapper, Supplier<BaseException> error) {
         Map<K, V> indexed = new LinkedHashMap<>();
-        values.forEach(v -> {
-            K key = valid(keyOperator.apply(v), Objects::nonNull);
+        noNulls(values, error).forEach(v -> {
+            K key = notNull(keyMapper.apply(v), error);
             if (indexed.putIfAbsent(key, v) != null) {
-                throw exceptionSupplier.get();
+                throw error.get();
             }
         });
         return indexed;

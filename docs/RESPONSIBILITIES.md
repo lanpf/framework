@@ -37,7 +37,7 @@
 - 分页契约：分页 API 请求通过 `Pagination` 组合分页能力（默认页码 1、默认页大小 20、页大小上限 200）；只有分页字段时可直接使用 `PageQueryRequest`，同时具有 Client、Channel 或业务条件时由请求类型自行实现该接口，不以分页类作为共同父类。`PageQuery` 是接口层完成默认值解析后交给 application、repository 和 persistence 使用的不可变分页条件，提供 `offset()`、`zeroBasedPageNo()` 换算；非法页码或页大小直接拒绝，不做静默纠正。
 - 内部分页数据：core 提供 `PagedList<T>`，适用于领域、application 和持久化端口的页数据交换，不携带 API 响应码。null 列表归一为空；列表结构与输入隔离且不可修改，元素引用共享，null 元素使用框架技术错误拒绝。
 - 响应契约：API 响应信封使用 `Result<T>`、`PageResult<T>`，共同契约由 `BaseResult` 表达（成功码 `0`、成功消息 `SUCCESS`）。失败响应不得携带数据。`Result<T>` 保留原始 payload 引用，不接管其状态所有权，不承诺快照或深层不可变；使用方按 payload 自身契约负责所需的隔离及发布期间稳定性。`PageResult<T>` 成功时缺失的列表归一为空，隔离原列表的结构变更，元素引用仍共享；失败时数据为 null。
-- 错误与异常：完整错误码固定 6 位（3 位服务前缀 + 3 位本地码），由 `ErrorCodeRange` 定义取值范围与格式化，`ErrorCodeNamespace` 划分 FRAMEWORK、CORE、BIZ、EDGE、RESERVED 前缀段，`ErrorCodePrefix` 定位服务前缀，`BaseError` 组合前缀与本地码。框架内部错误使用 `FrameworkError` 枚举（中文消息模板）与 `FrameworkException`；服务异常共同基类为 `BaseException`。错误消息以 `命名空间:模板` 形式输出。
+- 错误与异常：完整错误码固定 6 位（3 位服务前缀 + 3 位本地码），由 `ErrorCodeRange` 定义取值范围与格式化，`ErrorCodeNamespace` 划分 FRAMEWORK、CORE、BIZ、EDGE、RESERVED 前缀段，`ErrorCodePrefix` 定位服务前缀，`BaseError` 组合前缀与本地码。框架内部错误使用 `FrameworkError` 枚举（英文技术诊断默认消息）与 `FrameworkException`；服务异常共同基类为 `BaseException`。默认错误消息以 `命名空间:消息` 形式输出；显式技术诊断消息保留调用方提供的内容，不改变错误码。
 - 校验断言：`Require` 提供非空、非空白、集合/Map 非空、元素完整性及正数检查；默认使用框架技术错误，异常供应器可表达调用方的业务拒绝。`noNulls` 拒绝 null 容器，允许空容器，并检查集合元素及 Map 的 key/value；供应器重载对容器和元素均使用所提供的异常。`NullSafe` 仅在 null 与空容器等价的契约下提供遍历和不可修改浅复制，有序变体保留输入迭代顺序。
 - 命名空间与资源命名：`Namespaced` 声明命名空间载体，`NamespaceResolver` 解析命名空间前缀，`ResourceNameResolver` 把业务键段解析为最终资源名（分隔符 `:`，跳过空白键段）；`DefaultResourceNameResolver` 只拼接键段，`NamespacedResourceNameResolver` 在键段前注入命名空间。
 - 其它基础能力：`RestClientProperties` 提供连接/读取超时的配置默认值与约束；`MapStructConfig` 提供组件模型为 Spring、未映射目标字段按 ERROR 校验的公共 Mapper 配置。
