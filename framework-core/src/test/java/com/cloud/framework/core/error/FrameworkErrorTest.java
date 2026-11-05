@@ -9,8 +9,10 @@ class FrameworkErrorTest {
 
     @Test
     void shouldFormatCommonErrorCodeWithFixedSixDigits() {
-        assertThat(FrameworkError.FRAMEWORK_ERROR.errorCode()).isEqualTo("100000");
-        assertThat(FrameworkError.FRAMEWORK_ERROR.errorMessage()).isEqualTo("FRAMEWORK:Framework error");
+        assertThat(FrameworkError.ILLEGAL_ARGUMENT.errorCode()).isEqualTo("100001");
+        assertThat(FrameworkError.ILLEGAL_ARGUMENT.errorMessage()).isEqualTo("FRAMEWORK:Illegal argument");
+        assertThat(FrameworkError.ILLEGAL_STATE.errorCode()).isEqualTo("100002");
+        assertThat(FrameworkError.ILLEGAL_STATE.errorMessage()).isEqualTo("FRAMEWORK:Illegal state");
     }
 
     @Test
@@ -25,17 +27,23 @@ class FrameworkErrorTest {
     }
 
     @Test
-    void shouldKeepExplicitTechnicalDiagnosticsWithoutChangingErrorCodes() {
-        assertThat(FrameworkException.unspecifiedError())
-                .hasMessage(FrameworkError.FRAMEWORK_ERROR.errorMessage());
-        assertThat(FrameworkException.requiredError())
-                .hasMessage(FrameworkError.OBJECT_REQUIRED.errorMessage());
-        assertThat(FrameworkException.invalidError())
-                .hasMessage(FrameworkError.OBJECT_INVALID.errorMessage());
+    void shouldExposeDefaultTechnicalExceptionFactories() {
+        assertThat(FrameworkException.illegalArgument())
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage(FrameworkError.ILLEGAL_ARGUMENT.errorMessage());
+        assertThat(FrameworkException.illegalState())
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_STATE.errorCode())
+                .hasMessage(FrameworkError.ILLEGAL_STATE.errorMessage());
+    }
 
-        FrameworkException exception = FrameworkException.requiredError("repository must not be null");
-        assertThat(exception.getErrorCode()).isEqualTo(FrameworkError.OBJECT_REQUIRED.errorCode());
+    @Test
+    void shouldKeepExplicitTechnicalDiagnosticsWithoutChangingErrorCodes() {
+        FrameworkException exception = FrameworkException.illegalArgument("repository must not be null");
+        assertThat(exception.getErrorCode()).isEqualTo(FrameworkError.ILLEGAL_ARGUMENT.errorCode());
         assertThat(exception).hasMessage("repository must not be null");
+        assertThat(FrameworkException.illegalState("repository is closed"))
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_STATE.errorCode())
+                .hasMessage("repository is closed");
     }
 
     @Test

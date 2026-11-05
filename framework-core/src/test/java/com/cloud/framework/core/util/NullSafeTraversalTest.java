@@ -1,5 +1,6 @@
 package com.cloud.framework.core.util;
 
+import com.cloud.framework.core.error.FrameworkError;
 import com.cloud.framework.core.error.FrameworkException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,8 @@ class NullSafeTraversalTest {
 
         NullSafe.visit(List.of("a", "b"), visited::add);
         assertThat(visited).containsExactly("a", "b");
+        NullSafe.visit(Map.of("key", "c"), (key, value) -> visited.add(value));
+        assertThat(visited).containsExactly("a", "b", "c");
     }
 
     @Test
@@ -34,6 +37,33 @@ class NullSafeTraversalTest {
         entries.put("second", null);
         assertThatThrownBy(() -> NullSafe.visit(entries, (key, value) -> visited.add(value)))
                 .isInstanceOf(FrameworkException.class);
+        assertThat(visited).isEmpty();
+    }
+
+    @Test
+    void shouldRejectMissingConsumerEvenForNullContainers() {
+        assertThatThrownBy(() -> NullSafe.visit((List<String>) null, null))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("The consumer must not be null");
+        assertThatThrownBy(() -> NullSafe.visit((Map<String, String>) null, null))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("The consumer must not be null");
+    }
+
+    @Test
+    void shouldUseSuppliedExceptionBeforeVisitingInvalidInput() {
+        FrameworkException failure = FrameworkException.illegalState("visit rejected");
+        List<String> visited = new ArrayList<>();
+
+        assertThatThrownBy(() -> NullSafe.visit(Arrays.asList("a", null), () -> failure, visited::add))
+                .isSameAs(failure);
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("first", "valid");
+        entries.put("second", null);
+        assertThatThrownBy(() -> NullSafe.visit(entries, () -> failure,
+                (key, value) -> visited.add(value))).isSameAs(failure);
         assertThat(visited).isEmpty();
     }
 }

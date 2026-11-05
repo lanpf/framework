@@ -1,9 +1,13 @@
 package com.cloud.framework.core.http;
 
+import com.cloud.framework.core.error.FrameworkError;
+import com.cloud.framework.core.error.FrameworkException;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RequestHeaderTest {
     @Test void shouldResolveAllWireNamesWithoutCaseSensitivity() {
@@ -31,5 +35,22 @@ class RequestHeaderTest {
         } finally {
             Locale.setDefault(previous);
         }
+    }
+
+    @Test void shouldRejectInvalidHeaderNamesWithIllegalArgumentError() {
+        for (String name : List.of("", " X-App-Id", "X-App-Id ", "X:App", "X-App\r\nId", "A".repeat(129))) {
+            assertThatThrownBy(() -> RequestHeader.normalizeName(name))
+                    .isInstanceOf(FrameworkException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
+            assertThatThrownBy(() -> RequestHeader.fromName(name))
+                    .isInstanceOf(FrameworkException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
+        }
+    }
+
+    @Test void shouldKeepNullAndUnknownHeaderNamesAbsent() {
+        assertThat(RequestHeader.normalizeName(null)).isNull();
+        assertThat(RequestHeader.fromName(null)).isEmpty();
+        assertThat(RequestHeader.fromName("X-Unknown")).isEmpty();
     }
 }

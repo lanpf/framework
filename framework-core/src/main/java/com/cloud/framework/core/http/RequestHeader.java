@@ -61,6 +61,6 @@ public enum RequestHeader {
         if (headerName.length() <= MAX_NAME_LENGTH && headerName.matches(NAME_TOKEN)) {
             return headerName.toLowerCase(Locale.ROOT);
         }
-        throw FrameworkException.invalidError();
+        throw FrameworkException.illegalArgument();
     }
 }

@@ -27,7 +27,7 @@ class ResponsePayloadContractTest {
     void shouldRejectNullPageElementsUsingFrameworkError() {
         assertThatThrownBy(() -> PageResult.success(Arrays.asList("a", null), 2L))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
     }
 
     @Test

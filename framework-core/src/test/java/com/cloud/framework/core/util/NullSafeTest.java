@@ -3,6 +3,7 @@ package com.cloud.framework.core.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.cloud.framework.core.error.BaseException;
 import com.cloud.framework.core.error.FrameworkException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
 class NullSafeTest {
@@ -90,11 +92,11 @@ class NullSafeTest {
     @Test
     void shouldInvokeCopyConsumersForEachValidElementOrEntry() {
         List<String> visited = new ArrayList<>();
-        List<String> copied = NullSafe.copyToList(List.of("a", "b"), visited::add);
+        List<String> copied = NullSafe.copyToList(List.of("a", "b"), null, visited::add);
         Set<String> visitedSet = new LinkedHashSet<>();
-        Set<String> copiedSet = NullSafe.copyToSet(List.of("a", "b"), visitedSet::add);
+        Set<String> copiedSet = NullSafe.copyToSet(List.of("a", "b"), null, visitedSet::add);
         Map<String, String> visitedMap = new LinkedHashMap<>();
-        Map<String, String> copiedMap = NullSafe.copyToMap(Map.of("k", "v"), visitedMap::put);
+        Map<String, String> copiedMap = NullSafe.copyToMap(Map.of("k", "v"), null, visitedMap::put);
 
         assertThat(copied).containsExactlyElementsOf(visited);
         assertThat(copiedSet).containsExactlyInAnyOrderElementsOf(visitedSet);
@@ -103,41 +105,41 @@ class NullSafeTest {
 
     @Test
     void shouldSkipCopyConsumersForNullContainers() {
-        assertThat(NullSafe.copyToList(null, value -> {
+        assertThat(NullSafe.copyToList(null, null, value -> {
             throw new AssertionError("No element exists in a null container");
         })).isEmpty();
-        assertThat(NullSafe.copyToSet(null, value -> {
+        assertThat(NullSafe.copyToSet(null, null, value -> {
             throw new AssertionError("No element exists in a null container");
         })).isEmpty();
-        assertThat(NullSafe.copyToMap(null, (key, value) -> {
+        assertThat(NullSafe.copyToMap(null, null, (key, value) -> {
             throw new AssertionError("No entry exists in a null container");
         })).isEmpty();
-        assertThat(NullSafe.copyToOrderedSet(null, value -> {
+        assertThat(NullSafe.copyToOrderedSet(null, null, value -> {
             throw new AssertionError("No element exists in a null container");
         })).isEmpty();
-        assertThat(NullSafe.copyToOrderedMap(null, (key, value) -> {
+        assertThat(NullSafe.copyToOrderedMap(null, null, (key, value) -> {
             throw new AssertionError("No entry exists in a null container");
         })).isEmpty();
     }
 
     @Test
     void shouldRejectInvalidContainersBeforeInvokingCopyConsumers() {
-        assertThatThrownBy(() -> NullSafe.copyToList(Arrays.asList("a", null), value -> {
+        assertThatThrownBy(() -> NullSafe.copyToList(Arrays.asList("a", null), null, value -> {
             throw new AssertionError("All elements must be checked before invoking the consumer");
         })).isInstanceOf(FrameworkException.class);
-        assertThatThrownBy(() -> NullSafe.copyToSet(Arrays.asList("a", null), value -> {
+        assertThatThrownBy(() -> NullSafe.copyToSet(Arrays.asList("a", null), null, value -> {
             throw new AssertionError("All elements must be checked before invoking the consumer");
         })).isInstanceOf(FrameworkException.class);
-        assertThatThrownBy(() -> NullSafe.copyToMap(Collections.singletonMap("k", null), (key, value) -> {
+        assertThatThrownBy(() -> NullSafe.copyToMap(Collections.singletonMap("k", null), null, (key, value) -> {
             throw new AssertionError("All entries must be checked before invoking the consumer");
         })).isInstanceOf(FrameworkException.class);
-        assertThatThrownBy(() -> NullSafe.copyToOrderedSet(Arrays.asList("a", null), value -> {
+        assertThatThrownBy(() -> NullSafe.copyToOrderedSet(Arrays.asList("a", null), null, value -> {
             throw new AssertionError("All elements must be checked before invoking the consumer");
         })).isInstanceOf(FrameworkException.class);
         Map<String, String> invalidMap = new LinkedHashMap<>();
         invalidMap.put("valid", "value");
         invalidMap.put("invalid", null);
-        assertThatThrownBy(() -> NullSafe.copyToOrderedMap(invalidMap, (key, value) -> {
+        assertThatThrownBy(() -> NullSafe.copyToOrderedMap(invalidMap, null, (key, value) -> {
             throw new AssertionError("All entries must be checked before invoking the consumer");
         })).isInstanceOf(FrameworkException.class);
     }
@@ -147,7 +149,7 @@ class NullSafeTest {
         List<String> source = new ArrayList<>(List.of("z", "a", "z", "m"));
         List<String> visited = new ArrayList<>();
         Set<String> copied = NullSafe.copyToOrderedSet(source);
-        Set<String> withConsumer = NullSafe.copyToOrderedSet(source, visited::add);
+        Set<String> withConsumer = NullSafe.copyToOrderedSet(source, null, visited::add);
         source.clear();
 
         assertThat(copied).containsExactly("z", "a", "m");
@@ -166,7 +168,7 @@ class NullSafeTest {
         source.put("m", List.of("third"));
         List<String> visited = new ArrayList<>();
         Map<String, List<String>> copied = NullSafe.copyToOrderedMap(source);
-        Map<String, List<String>> withConsumer = NullSafe.copyToOrderedMap(source, (key, item) -> visited.add(key));
+        Map<String, List<String>> withConsumer = NullSafe.copyToOrderedMap(source, null, (key, item) -> visited.add(key));
         source.clear();
 
         assertThat(copied.keySet()).containsExactly("z", "a", "m");
@@ -176,5 +178,58 @@ class NullSafeTest {
         assertThatThrownBy(() -> copied.put("next", List.of())).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> withConsumer.entrySet().iterator().next().setValue(List.of()))
                 .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void shouldUseSuppliedExceptionForInvalidCopyElementsAndEntries() {
+        FrameworkException failure = FrameworkException.illegalState("copy rejected");
+        List<String> invalid = Arrays.asList("a", null);
+
+        assertThatThrownBy(() -> NullSafe.copyToList(invalid, () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> NullSafe.copyToSet(invalid, () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> NullSafe.copyToOrderedSet(invalid, () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> NullSafe.copyToMap(Collections.singletonMap(null, "v"), () -> failure))
+                .isSameAs(failure);
+        assertThatThrownBy(() -> NullSafe.copyToMap(Collections.singletonMap("k", null), () -> failure))
+                .isSameAs(failure);
+        assertThatThrownBy(() -> NullSafe.copyToOrderedMap(Collections.singletonMap(null, "v"), () -> failure))
+                .isSameAs(failure);
+        assertThatThrownBy(() -> NullSafe.copyToOrderedMap(Collections.singletonMap("k", null), () -> failure))
+                .isSameAs(failure);
+    }
+
+    @Test
+    void shouldKeepExceptionSuppliersLazyForNullEmptyAndValidCopies() {
+        Supplier<BaseException> unexpectedFailure = () -> {
+            throw new AssertionError("Permitted containers must not create an exception");
+        };
+
+        assertThat(NullSafe.copyToList(null, unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToSet(null, unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToOrderedSet(null, unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToMap(null, unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToOrderedMap(null, unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToList(List.of(), unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToSet(Set.of(), unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToOrderedSet(Set.of(), unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToMap(Map.of(), unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToOrderedMap(Map.of(), unexpectedFailure)).isEmpty();
+        assertThat(NullSafe.copyToList(List.of("a"), unexpectedFailure)).containsExactly("a");
+        assertThat(NullSafe.copyToMap(Map.of("k", "v"), unexpectedFailure)).containsEntry("k", "v");
+    }
+
+    @Test
+    void shouldUseSuppliedExceptionBeforeInvokingCopyConsumer() {
+        FrameworkException failure = FrameworkException.illegalState("copy rejected");
+        List<String> visited = new ArrayList<>();
+
+        assertThatThrownBy(() -> NullSafe.copyToList(Arrays.asList("a", null), () -> failure, visited::add))
+                .isSameAs(failure);
+        Map<String, String> entries = new LinkedHashMap<>();
+        entries.put("first", "valid");
+        entries.put("second", null);
+        assertThatThrownBy(() -> NullSafe.copyToMap(entries, () -> failure,
+                (key, value) -> visited.add(value))).isSameAs(failure);
+        assertThat(visited).isEmpty();
     }
 }

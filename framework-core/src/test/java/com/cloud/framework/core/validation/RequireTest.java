@@ -7,6 +7,8 @@ import com.cloud.framework.core.error.BaseException;
 import com.cloud.framework.core.error.Error;
 import com.cloud.framework.core.error.FrameworkError;
 import com.cloud.framework.core.error.FrameworkException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -105,26 +107,26 @@ class RequireTest {
     }
 
     @Test
-    void shouldPreserveDefaultMissingObjectErrorForNullContainers() {
+    void shouldRejectNullContainersWithIllegalArgumentError() {
         assertThatThrownBy(() -> Require.noNulls((List<?>) null))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
         assertThatThrownBy(() -> Require.noNulls((Map<?, ?>) null))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
     }
 
     @Test
-    void shouldRejectNullElementsKeysAndValuesWithDefaultInvalidObjectError() {
+    void shouldRejectNullElementsKeysAndValuesWithIllegalArgumentError() {
         assertThatThrownBy(() -> Require.noNulls(Arrays.asList("a", null)))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
         assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap(null, "v")))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
         assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap("k", null)))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_INVALID.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
     }
 
     @Test
@@ -156,7 +158,7 @@ class RequireTest {
 
         assertThatThrownBy(() -> Require.noDuplicates(List.of("a", "a")))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_AMBIGUOUS.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
         assertThatThrownBy(() -> Require.noDuplicates(List.of("a", "a"), () -> failure)).isSameAs(failure);
     }
 
@@ -178,7 +180,7 @@ class RequireTest {
 
         assertThatThrownBy(() -> Require.noDuplicates(List.of("a", "b"), String::length))
                 .isInstanceOf(FrameworkException.class)
-                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.OBJECT_AMBIGUOUS.errorCode());
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
         assertThatThrownBy(() -> Require.noDuplicates(List.of("a", "b"), String::length, () -> failure))
                 .isSameAs(failure);
     }
@@ -194,5 +196,87 @@ class RequireTest {
         Set<String> absentKeys = Collections.singleton("a");
         assertThatThrownBy(() -> Require.noDuplicates(absentKeys, value -> (String) null))
                 .isInstanceOf(FrameworkException.class);
+    }
+
+    @Test
+    void shouldReturnSatisfiedValueWithoutCreatingException() {
+        String value = "accepted";
+        Supplier<BaseException> unexpectedFailure = () -> {
+            throw new AssertionError("Valid input must not create an exception");
+        };
+
+        assertThat(Require.satisfies(value, v -> !v.isEmpty())).isSameAs(value);
+        assertThat(Require.satisfies(value, v -> !v.isEmpty(), "rejected")).isSameAs(value);
+        assertThat(Require.satisfies(value, v -> !v.isEmpty(), unexpectedFailure)).isSameAs(value);
+    }
+
+    @Test
+    void shouldRejectNullAndUnsatisfiedValuesWithSuppliedException() {
+        TestException failure = new TestException("rejected");
+
+        assertThatThrownBy(() -> Require.satisfies((String) null, v -> {
+            throw new AssertionError("A null value must not reach the predicate");
+        }, () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> Require.satisfies("", v -> !v.isEmpty(), () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> Require.satisfies("", v -> !v.isEmpty()))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
+    }
+
+    @Test
+    void shouldKeepExplicitDiagnosticsForInvalidValues() {
+        assertThatThrownBy(() -> Require.satisfies("", v -> !v.isEmpty(), "value rejected"))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("value rejected");
+        assertThatThrownBy(() -> Require.notNull(null, "value required")).hasMessage("value required");
+        assertThatThrownBy(() -> Require.notBlank(" ", "text required")).hasMessage("text required");
+        assertThatThrownBy(() -> Require.positive(0, "positive required")).hasMessage("positive required");
+        assertThatThrownBy(() -> Require.notEmpty(List.of(), "collection required"))
+                .hasMessage("collection required");
+        assertThatThrownBy(() -> Require.notEmpty(Map.of(), "map required")).hasMessage("map required");
+        assertThatThrownBy(() -> Require.noNulls(Arrays.asList("a", null), "element required"))
+                .hasMessage("element required");
+        assertThatThrownBy(() -> Require.noNulls(Collections.singletonMap("k", null), "entry required"))
+                .hasMessage("entry required");
+        assertThatThrownBy(() -> Require.noDuplicates(List.of("a", "a"), "duplicate value"))
+                .hasMessage("duplicate value");
+        assertThatThrownBy(() -> Require.noDuplicates(List.of("a", "b"), String::length, "duplicate key"))
+                .hasMessage("duplicate key");
+    }
+
+    @Test
+    void shouldAcceptPositiveFractionsAndNumbersBeyondLongRange() {
+        BigDecimal fraction = new BigDecimal("0.0001");
+        BigInteger large = new BigInteger("18446744073709551616");
+
+        assertThat(Require.positive(fraction)).isSameAs(fraction);
+        assertThat(Require.positive(large)).isSameAs(large);
+        assertThat(Require.positive(Double.MIN_VALUE)).isEqualTo(Double.MIN_VALUE);
+    }
+
+    @Test
+    void shouldRejectNonPositiveAndNonFiniteNumbers() {
+        for (Number value : List.of(0, -1, new BigDecimal("-0.0001"), Double.NaN,
+                Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY)) {
+            assertThatThrownBy(() -> Require.positive(value))
+                    .isInstanceOf(FrameworkException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
+        }
+    }
+
+    @Test
+    void shouldUseDuplicateCheckSupplierForInvalidInputAndDerivedKeys() {
+        TestException failure = new TestException("rejected");
+
+        assertThatThrownBy(() -> Require.noDuplicates((List<String>) null, () -> failure)).isSameAs(failure);
+        assertThatThrownBy(() -> Require.noDuplicates(Arrays.asList("a", null), () -> failure))
+                .isSameAs(failure);
+        assertThatThrownBy(() -> Require.noDuplicates((List<String>) null, String::length, () -> failure))
+                .isSameAs(failure);
+        assertThatThrownBy(() -> Require.noDuplicates(Arrays.asList("a", null), String::length, () -> failure))
+                .isSameAs(failure);
+        assertThatThrownBy(() -> Require.noDuplicates(List.of("a"), value -> (String) null, () -> failure))
+                .isSameAs(failure);
     }
 }
