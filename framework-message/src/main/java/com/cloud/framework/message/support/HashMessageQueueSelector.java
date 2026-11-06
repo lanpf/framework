@@ -1,12 +1,11 @@
 package com.cloud.framework.message.support;
 
-import org.apache.commons.lang3.Validate;
+import com.cloud.framework.kernel.validation.Require;
 
 public class HashMessageQueueSelector implements MessageQueueSelector {
     @Override
     public Integer select(Integer partitions, Object partitionArg) {
-        Validate.notNull(partitions, "partitions must not be null");
-        Validate.isTrue(partitions > 0, "partitions must be positive");
+        Require.satisfies(partitions, value -> value > 0, "partitions must be positive");
         Object partitionKey = PartitionKeyResolver.resolve(partitionArg);
         return Math.floorMod(partitionKey.hashCode(), partitions);
     }

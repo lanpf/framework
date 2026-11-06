@@ -1,8 +1,9 @@
 package com.cloud.framework.core.naming;
 
-import org.apache.commons.lang3.StringUtils;
+import com.cloud.framework.kernel.validation.Require;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * 资源名解析契约：把稳定的业务键段解析为最终资源名。
@@ -21,8 +22,9 @@ public interface ResourceNameResolver {
     }
 
     default String[] normalize(String... names) {
-        return Arrays.stream(names)
-                .filter(StringUtils::isNotBlank)
+        return Arrays.stream(Require.notNull(names, "Resource name segments must not be null"))
+                .filter(Objects::nonNull)
+                .filter(name -> !name.isBlank())
                 .toArray(String[]::new);
     }
 }

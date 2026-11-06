@@ -3,8 +3,8 @@ package com.cloud.framework.core.pagination;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.cloud.framework.core.error.FrameworkError;
-import com.cloud.framework.core.error.FrameworkException;
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

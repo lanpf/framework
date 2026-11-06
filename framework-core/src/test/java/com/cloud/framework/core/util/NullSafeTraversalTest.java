@@ -1,7 +1,7 @@
 package com.cloud.framework.core.util;
 
-import com.cloud.framework.core.error.FrameworkError;
-import com.cloud.framework.core.error.FrameworkException;
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;

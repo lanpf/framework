@@ -1,5 +1,8 @@
 package com.cloud.framework.message.support;
 
+import com.cloud.framework.kernel.error.FrameworkException;
+import com.cloud.framework.message.error.MessageError;
+
 import java.util.Map;
 
 public final class PartitionKeyResolver {
@@ -8,12 +11,15 @@ public final class PartitionKeyResolver {
         if (partitionArg instanceof Map<?, ?> map) {
             Object partitionKey = map.get(MessageHeaders.PARTITION_KEY);
             if (partitionKey == null) {
-                throw new IllegalArgumentException(MessageHeaders.PARTITION_KEY + " is required");
+                throw new FrameworkException(
+                        MessageError.PARTITION_KEY_MISSING,
+                        MessageHeaders.PARTITION_KEY + " is required"
+                );
             }
             return partitionKey;
         }
         if (partitionArg == null) {
-            throw new IllegalArgumentException("partition key is required");
+            throw new FrameworkException(MessageError.PARTITION_KEY_MISSING, "partition key is required");
         }
         return partitionArg;
     }

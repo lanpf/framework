@@ -1,12 +1,12 @@
-package com.cloud.framework.core.validation;
+package com.cloud.framework.kernel.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.cloud.framework.core.error.BaseException;
-import com.cloud.framework.core.error.Error;
-import com.cloud.framework.core.error.FrameworkError;
-import com.cloud.framework.core.error.FrameworkException;
+import com.cloud.framework.kernel.error.BaseException;
+import com.cloud.framework.kernel.error.Error;
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
@@ -211,6 +212,39 @@ class RequireTest {
     }
 
     @Test
+    void shouldAcceptValidStateWithoutCreatingException() {
+        Supplier<FrameworkException> unexpectedFailure = () -> {
+            throw new AssertionError("Valid state must not create an exception");
+        };
+
+        Require.state(true, "repository must be open");
+        Require.state(true, unexpectedFailure);
+    }
+
+    @Test
+    void shouldRejectInvalidStateWithIllegalStateError() {
+        assertThatThrownBy(() -> Require.state(false, "repository must be open"))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_STATE.errorCode())
+                .hasMessage("repository must be open");
+    }
+
+    @Test
+    void shouldUseSuppliedFrameworkExceptionForInvalidState() {
+        FrameworkException failure = new FrameworkException(TEST_ERROR);
+
+        assertThatThrownBy(() -> Require.state(false, () -> failure)).isSameAs(failure);
+    }
+
+    @Test
+    void shouldRejectNullExceptionReturnedForInvalidState() {
+        assertThatThrownBy(() -> Require.state(false, () -> null))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("error supplier must not return null");
+    }
+
+    @Test
     void shouldRejectNullAndUnsatisfiedValuesWithSuppliedException() {
         TestException failure = new TestException("rejected");
 
@@ -221,6 +255,26 @@ class RequireTest {
         assertThatThrownBy(() -> Require.satisfies("", v -> !v.isEmpty()))
                 .isInstanceOf(FrameworkException.class)
                 .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
+    }
+
+    @Test
+    void shouldRejectNullCallbacksWithFrameworkException() {
+        assertThatThrownBy(() -> Require.satisfies("value", null))
+                .isInstanceOf(FrameworkException.class)
+                .hasMessage("condition must not be null");
+        assertThatThrownBy(() -> Require.satisfies("value", value -> true, (Supplier<BaseException>) null))
+                .isInstanceOf(FrameworkException.class)
+                .hasMessage("error supplier must not be null");
+        assertThatThrownBy(() -> Require.noDuplicates(
+                List.of("value"),
+                (Function<String, String>) null
+        ))
+                .isInstanceOf(FrameworkException.class)
+                .hasMessage("keyMapper must not be null");
+        assertThatThrownBy(() -> Require.state(true, (Supplier<FrameworkException>) null))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("error supplier must not be null");
     }
 
     @Test

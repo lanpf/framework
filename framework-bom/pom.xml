@@ -6,7 +6,7 @@
 
     <groupId>com.cloud</groupId>
     <artifactId>framework-bom</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>framework-bom</name>
@@ -18,6 +18,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.cloud</groupId>
+                <artifactId>framework-kernel</artifactId>
+                <version>${revision.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.cloud</groupId>
                 <artifactId>framework-core</artifactId>

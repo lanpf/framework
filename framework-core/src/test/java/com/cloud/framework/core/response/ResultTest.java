@@ -3,6 +3,8 @@ package com.cloud.framework.core.response;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +27,8 @@ class ResultTest {
     @Test
     void shouldRejectFailureResultWithData() {
         assertThatThrownBy(() -> new Result<>("400001", "failed", "data"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
     }
 
     @Test
@@ -55,7 +58,8 @@ class ResultTest {
     @Test
     void shouldRejectFailurePageResultWithData() {
         assertThatThrownBy(() -> new PageResult<>("400001", "failed", List.of("a"), 1L))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
     }
 
     @Test

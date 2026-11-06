@@ -1,4 +1,4 @@
-package com.cloud.framework.core.error;
+package com.cloud.framework.kernel.error;
 
 import java.io.Serializable;
 

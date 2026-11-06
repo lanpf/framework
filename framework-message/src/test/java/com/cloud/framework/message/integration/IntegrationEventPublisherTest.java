@@ -1,5 +1,6 @@
 package com.cloud.framework.message.integration;
 
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +17,9 @@ class IntegrationEventPublisherTest {
         IntegrationEventPublisher publisher = published::add;
 
         assertThatThrownBy(() -> publisher.publishAll(null))
-                .isInstanceOf(NullPointerException.class).hasMessage("events must not be null or empty");
+                .isInstanceOf(FrameworkException.class).hasMessage("events must not be null or empty");
         assertThatThrownBy(() -> publisher.publishAll(List.of()))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("events must not be null or empty");
+                .isInstanceOf(FrameworkException.class).hasMessage("events must not be null or empty");
         assertThat(published).isEmpty();
     }
 

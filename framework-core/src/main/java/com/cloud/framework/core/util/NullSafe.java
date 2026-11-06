@@ -1,8 +1,8 @@
 package com.cloud.framework.core.util;
 
-import com.cloud.framework.core.error.BaseException;
-import com.cloud.framework.core.error.FrameworkException;
-import com.cloud.framework.core.validation.Require;
+import com.cloud.framework.kernel.error.BaseException;
+import com.cloud.framework.kernel.error.FrameworkException;
+import com.cloud.framework.kernel.validation.Require;
 
 import java.util.Collection;
 import java.util.Collections;

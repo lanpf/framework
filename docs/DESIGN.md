@@ -4,14 +4,23 @@
 
 ## 模块与依赖
 
-- `framework-*` 生产 module 之间不得相互依赖；每个 module 独立声明自身契约及所需三方依赖。
+- `framework-kernel` 是只依赖 JDK 的最内层 module，提供错误码基础、异常和 `Require`；其他生产 module 可按实际使用单向依赖 kernel，kernel 不依赖任何其他 framework module。
+- 除对 `framework-kernel` 的单向依赖外，其他 `framework-*` 生产 module 之间不得相互依赖；每个 module 独立声明自身契约及所需三方依赖。
 - 除 `framework-dependencies` 和 `framework-bom` 外，三方依赖统一使用 `provided`；框架只声明编译契约，不将三方实现传递给引用方。
 - 每个 module 只声明实现当前契约所需的最小依赖，不通过聚合型 starter 获取基础类型。
-- `framework-dependencies` 和 `framework-bom` 只管理版本，不承载运行时代码，也不构成 module 间依赖。
+- `framework-dependencies` 和 `framework-bom` 只管理版本，不承载运行时代码。
 
-## core 能力包
+## kernel 与 core 能力包
 
-- 包边界：根包仅保留 package-info。`request` 持有 Request、App/Client/认证会话请求及 SubjectType；`response` 持有 BaseResult、Result、PageResult；`pagination` 持有 Pagination、PageQueryRequest、PageQuery、PagedList；`http` 持有 RequestHeader、HeaderType、RestClientProperties。`error`、`validation`、`naming`、`mapper`、`util` 保持各自职责，Require 保留在 `core.validation`，不因调用频繁迁入根包。分页参数与内部查询条件放在同一能力包；PageResult 作为响应信封留在 response。
+- kernel 的 `error` 持有错误码结构、`BaseException`、通用 `FrameworkError` 与 `FrameworkException`，`validation` 持有 `Require`。kernel 不使用 Lombok、Spring 或其他三方依赖。
+- core 包边界：根包仅保留 package-info。`request` 持有 Request、App/Client/认证会话请求及 SubjectType；`response` 持有 BaseResult、Result、PageResult；`pagination` 持有 Pagination、PageQueryRequest、PageQuery、PagedList；`http` 持有 RequestHeader、HeaderType、RestClientProperties 与 Web 入站错误。`naming`、`mapper`、`util` 保持各自职责。分页参数与内部查询条件放在同一能力包；PageResult 作为响应信封留在 response。
+
+## 框架错误归属
+
+- `FrameworkError` 只保留 `INTERNAL_ERROR`、`ILLEGAL_ARGUMENT`、`ILLEGAL_STATE` 三个跨能力通用错误。
+- 能够稳定识别和恢复的技术失败由能力所有者声明错误枚举，并统一通过 `FrameworkException` 抛出：Web 入口归 core，锁归 lock，消息归 message，Outbox 与事件存储归对应 starter，持久化能力归 persistence。
+- 框架本地码按能力分段：通用 `000-009`、Web `020-029`、锁 `300-319`、消息 `400-419`、Outbox `500-519`、事件存储 `520-539`、持久化 `600-619`。新增错误只在真实调用场景存在时追加。
+- 未分类的 JDK 或三方异常不在来源处无差别包装；统一边界记录后返回 `INTERNAL_ERROR`。框架技术异常在 Web 边界返回服务端错误和稳定枚举消息，不暴露调用点诊断文本。
 
 `PagedList` 是技术中立的内部页数据，不属于业务领域模型或某个持久化技术，因此与 `PageQuery` 一起归 core.pagination；`PageResult` 是 API 响应信封，归 core.response。domain 与 core 之间不为此增加 module 依赖。
 

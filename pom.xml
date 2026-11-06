@@ -6,7 +6,7 @@
 
     <groupId>com.cloud</groupId>
     <artifactId>framework</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>framework</name>
@@ -15,6 +15,7 @@
     <modules>
         <module>framework-bom</module>
         <module>framework-dependencies</module>
+        <module>framework-kernel</module>
         <module>framework-core</module>
         <module>framework-domain</module>
         <module>framework-message</module>

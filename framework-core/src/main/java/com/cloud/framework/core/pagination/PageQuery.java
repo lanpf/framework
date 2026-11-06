@@ -1,15 +1,16 @@
 package com.cloud.framework.core.pagination;
 
-import org.apache.commons.lang3.Validate;
+import com.cloud.framework.kernel.validation.Require;
 
 public record PageQuery(int pageNo, int pageSize) {
 
     private static final PageQuery DEFAULT = new PageQuery(Pagination.DEFAULT_PAGE_NO, Pagination.DEFAULT_PAGE_SIZE);
 
     public PageQuery {
-        Validate.isTrue(pageNo >= Pagination.DEFAULT_PAGE_NO, "pageNo must be positive");
-        Validate.isTrue(
-                pageSize >= 1 && pageSize <= Pagination.MAX_PAGE_SIZE,
+        Require.satisfies(pageNo, value -> value >= Pagination.DEFAULT_PAGE_NO, "pageNo must be positive");
+        Require.satisfies(
+                pageSize,
+                value -> value >= 1 && value <= Pagination.MAX_PAGE_SIZE,
                 "pageSize must be between 1 and " + Pagination.MAX_PAGE_SIZE
         );
     }
@@ -34,7 +35,7 @@ public record PageQuery(int pageNo, int pageSize) {
     }
 
     public static PageQuery from(Pagination pagination) {
-        Validate.notNull(pagination, "pagination must not be null");
+        Require.notNull(pagination, "pagination must not be null");
         return of(pagination.getPageNo(), pagination.getPageSize());
     }
 

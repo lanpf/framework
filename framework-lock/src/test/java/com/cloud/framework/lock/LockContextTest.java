@@ -3,6 +3,7 @@ package com.cloud.framework.lock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
@@ -24,34 +25,35 @@ class LockContextTest {
     @Test
     void shouldRejectNullWaitTime() {
         assertThatThrownBy(() -> new LockContext((Duration) null, "order"))
-                .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(FrameworkException.class)
+                .hasMessage("waitTime must not be null");
     }
 
     @Test
     void shouldRejectNegativeWaitTime() {
         assertThatThrownBy(() -> new LockContext(Duration.ofSeconds(-1), "order"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
                 .hasMessage("waitTime must not be negative");
     }
 
     @Test
     void shouldRejectEmptyLockNames() {
         assertThatThrownBy(LockContext::new)
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
                 .hasMessage("lockNames must not be empty");
     }
 
     @Test
     void shouldRejectNullLockNames() {
         assertThatThrownBy(() -> new LockContext((String[]) null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
                 .hasMessage("lockNames must not be empty");
     }
 
     @Test
     void shouldRejectBlankLockName() {
         assertThatThrownBy(() -> new LockContext("order", " "))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
                 .hasMessage("lockNames must not contain blank name");
     }
 }

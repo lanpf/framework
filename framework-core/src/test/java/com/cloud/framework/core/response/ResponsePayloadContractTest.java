@@ -1,7 +1,7 @@
 package com.cloud.framework.core.response;
 
-import com.cloud.framework.core.error.FrameworkError;
-import com.cloud.framework.core.error.FrameworkException;
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +35,7 @@ class ResponsePayloadContractTest {
         assertThat(PageResult.success(null, 0L).data()).isEmpty();
         assertThat(PageResult.failure("400001", "failed").data()).isNull();
         assertThatThrownBy(() -> new PageResult<>("400001", "failed", List.of(), 0L))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
     }
 }

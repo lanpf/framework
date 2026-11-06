@@ -3,6 +3,8 @@ package com.cloud.framework.core.pagination;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
@@ -30,14 +32,16 @@ class PageQueryTest {
     @Test
     void shouldRejectInvalidPageNo() {
         assertThatThrownBy(() -> PageQuery.of(0, 20))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
                 .hasMessage("pageNo must be positive");
     }
 
     @Test
     void shouldRejectPageSizeAboveLimit() {
         assertThatThrownBy(() -> PageQuery.of(1, 201))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
                 .hasMessage("pageSize must be between 1 and 200");
     }
 
@@ -51,7 +55,8 @@ class PageQueryTest {
     @Test
     void shouldRejectNullPagination() {
         assertThatThrownBy(() -> PageQuery.from(null))
-                .isInstanceOf(NullPointerException.class)
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
                 .hasMessage("pagination must not be null");
     }
 

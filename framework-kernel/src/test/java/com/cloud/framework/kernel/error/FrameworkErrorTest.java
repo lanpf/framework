@@ -1,4 +1,4 @@
-package com.cloud.framework.core.error;
+package com.cloud.framework.kernel.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,10 +40,19 @@ class FrameworkErrorTest {
     void shouldKeepExplicitTechnicalDiagnosticsWithoutChangingErrorCodes() {
         FrameworkException exception = FrameworkException.illegalArgument("repository must not be null");
         assertThat(exception.getErrorCode()).isEqualTo(FrameworkError.ILLEGAL_ARGUMENT.errorCode());
+        assertThat(exception.getError()).isSameAs(FrameworkError.ILLEGAL_ARGUMENT);
         assertThat(exception).hasMessage("repository must not be null");
         assertThat(FrameworkException.illegalState("repository is closed"))
                 .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_STATE.errorCode())
                 .hasMessage("repository is closed");
+    }
+
+    @Test
+    void shouldRejectMissingErrorWithoutThrowingNullPointerException() {
+        assertThatThrownBy(() -> new FrameworkException((Error) null))
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("error must not be null");
     }
 
     @Test
@@ -55,8 +64,10 @@ class FrameworkErrorTest {
     @Test
     void shouldRejectInvalidLocalCode() {
         assertThatThrownBy(() -> ErrorCodeRange.assertLocalCode(-1))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
         assertThatThrownBy(() -> ErrorCodeRange.assertLocalCode(1000))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode());
     }
 }

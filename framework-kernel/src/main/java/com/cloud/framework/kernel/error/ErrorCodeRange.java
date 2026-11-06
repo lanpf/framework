@@ -1,6 +1,4 @@
-package com.cloud.framework.core.error;
-
-import org.apache.commons.lang3.Validate;
+package com.cloud.framework.kernel.error;
 
 import java.io.Serializable;
 
@@ -24,10 +22,11 @@ public interface ErrorCodeRange extends Serializable {
     int getMax();
 
     default void assertContains(int code) {
-        Validate.isTrue(
-                code >= getMin() && code <= getMax(),
-                String.format("%d out of range [%d, %d]", code, getMin(), getMax())
-        );
+        if (code < getMin() || code > getMax()) {
+            throw FrameworkException.illegalArgument(
+                    String.format("%d out of range [%d, %d]", code, getMin(), getMax())
+            );
+        }
     }
 
     default String format(int code) {
@@ -36,10 +35,11 @@ public interface ErrorCodeRange extends Serializable {
     }
 
     static void assertLocalCode(int localCode) {
-        Validate.isTrue(
-                localCode >= LOCAL_CODE_MIN && localCode <= LOCAL_CODE_MAX,
-                String.format("%d out of local code range [%d, %d]", localCode, LOCAL_CODE_MIN, LOCAL_CODE_MAX)
-        );
+        if (localCode < LOCAL_CODE_MIN || localCode > LOCAL_CODE_MAX) {
+            throw FrameworkException.illegalArgument(
+                    String.format("%d out of local code range [%d, %d]",
+                            localCode, LOCAL_CODE_MIN, LOCAL_CODE_MAX)
+            );
+        }
     }
-
 }

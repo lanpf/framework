@@ -1,8 +1,11 @@
-package com.cloud.framework.core.error;
+package com.cloud.framework.kernel.error;
 
 public record ErrorCodePrefix(ErrorCodeNamespace namespace, int offset) implements ErrorCodeRange {
 
     public ErrorCodePrefix {
+        if (namespace == null) {
+            throw FrameworkException.illegalArgument("namespace must not be null");
+        }
         namespace.assertPrefix(namespace.getMinPrefix() + offset);
     }
 

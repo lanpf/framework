@@ -15,7 +15,8 @@
 | --- | --- |
 | `framework-dependencies` | 统一导入的 dependency management，集中声明三方依赖版本 |
 | `framework-bom` | 工程内基础 module 的版本约束，不承载运行时代码 |
-| `framework-core` | 请求/响应契约、错误码与异常、分页条件与 `PagedList`、请求头、校验断言、命名空间与资源命名等基础能力 |
+| `framework-kernel` | 只依赖 JDK 的错误码基础、异常与 `Require` 技术断言 |
+| `framework-core` | 请求/响应契约、分页条件与 `PagedList`、请求头、命名空间与资源命名等基础能力 |
 | `framework-domain` | 领域 ID、聚合根、领域事件、事件存储端口、Repository 契约 |
 | `framework-id` | `IdGenerator`/`LongIdGenerator` 发号抽象，按 generator name 取号 |
 | `framework-message` | 集成事件契约、统一消息 header、分区选择、发布与 outbox 端口 |

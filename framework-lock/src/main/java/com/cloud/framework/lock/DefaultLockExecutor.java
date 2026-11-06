@@ -1,8 +1,8 @@
 package com.cloud.framework.lock;
 
+import com.cloud.framework.kernel.validation.Require;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.Validate;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -15,7 +15,7 @@ public class DefaultLockExecutor implements LockExecutor {
     private final LockProvider lockProvider;
 
     public DefaultLockExecutor(LockProvider lockProvider) {
-        this.lockProvider = Validate.notNull(lockProvider, "lockProvider must not be null");
+        this.lockProvider = Require.notNull(lockProvider, "lockProvider must not be null");
     }
 
     @Override
@@ -23,8 +23,8 @@ public class DefaultLockExecutor implements LockExecutor {
             @NotNull @Valid LockContext context,
             @NotNull Callable<T> callable
     ) throws Exception {
-        Validate.notNull(context, "context must not be null");
-        Validate.notNull(callable, "callable must not be null");
+        Require.notNull(context, "context must not be null");
+        Require.notNull(callable, "callable must not be null");
         Lock lock = lockProvider.obtain(context.lockNames());
         if (!tryLock(lock, context.waitTime())) {
             return Optional.empty();

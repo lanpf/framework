@@ -1,5 +1,6 @@
 package com.cloud.framework.lock;
 
+import com.cloud.framework.kernel.error.FrameworkException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -56,7 +57,8 @@ class DefaultLockExecutorTest {
 
     @Test
     void shouldRejectNullLockProvider() {
-        assertThrows(NullPointerException.class, () -> new DefaultLockExecutor(null));
+        FrameworkException exception = assertThrows(FrameworkException.class, () -> new DefaultLockExecutor(null));
+        assertEquals("lockProvider must not be null", exception.getMessage());
     }
 
     @Test
@@ -64,8 +66,8 @@ class DefaultLockExecutorTest {
         DefaultLockExecutor executor = new DefaultLockExecutor(lockNames -> new ReentrantLock());
         Callable<String> callback = () -> "created";
 
-        NullPointerException exception = assertThrows(
-                NullPointerException.class,
+        FrameworkException exception = assertThrows(
+                FrameworkException.class,
                 () -> executor.execute(null, callback)
         );
         assertEquals("context must not be null", exception.getMessage());
@@ -76,7 +78,7 @@ class DefaultLockExecutorTest {
         DefaultLockExecutor executor = new DefaultLockExecutor(lockNames -> new ReentrantLock());
 
         assertThrows(
-                NullPointerException.class,
+                FrameworkException.class,
                 () -> executor.execute(new LockContext("create-order"), (Callable<String>) null)
         );
     }

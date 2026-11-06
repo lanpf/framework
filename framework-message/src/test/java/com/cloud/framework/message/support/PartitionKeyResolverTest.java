@@ -3,6 +3,8 @@ package com.cloud.framework.message.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.cloud.framework.kernel.error.FrameworkException;
+import com.cloud.framework.message.error.MessageError;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -17,14 +19,16 @@ class PartitionKeyResolverTest {
     @Test
     void shouldRejectHeadersWithoutPartitionKey() {
         assertThatThrownBy(() -> PartitionKeyResolver.resolve(Map.of("other", "value")))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MessageError.PARTITION_KEY_MISSING.errorCode())
                 .hasMessage(MessageHeaders.PARTITION_KEY + " is required");
     }
 
     @Test
     void shouldRejectNullPartitionArgument() {
         assertThatThrownBy(() -> PartitionKeyResolver.resolve(null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MessageError.PARTITION_KEY_MISSING.errorCode())
                 .hasMessage("partition key is required");
     }
 

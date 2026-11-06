@@ -1,9 +1,9 @@
 package com.cloud.framework.core.response;
 
-import com.cloud.framework.core.error.BaseException;
-import com.cloud.framework.core.error.Error;
+import com.cloud.framework.kernel.error.BaseException;
+import com.cloud.framework.kernel.error.Error;
+import com.cloud.framework.kernel.error.FrameworkException;
 import com.cloud.framework.core.util.NullSafe;
-import org.apache.commons.lang3.Validate;
 
 import java.util.List;
 
@@ -20,10 +20,9 @@ public record PageResult<T>(String code, String message, List<T> data, Long tota
      * @param total total item count, retained as supplied
      */
     public PageResult {
-        Validate.isTrue(
-                DEFAULT_SUCCESS_CODE.equals(code) || data == null,
-                "Data must be null if response code is not success"
-        );
+        if (!DEFAULT_SUCCESS_CODE.equals(code) && data != null) {
+            throw FrameworkException.illegalArgument("Data must be null if response code is not success");
+        }
         data = DEFAULT_SUCCESS_CODE.equals(code) ? NullSafe.copyToList(data) : null;
     }
 

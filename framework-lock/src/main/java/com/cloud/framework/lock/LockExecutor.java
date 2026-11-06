@@ -1,5 +1,6 @@
 package com.cloud.framework.lock;
 
+import com.cloud.framework.kernel.validation.Require;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,6 +16,7 @@ public interface LockExecutor {
             @NotNull @Valid LockContext context,
             @NotNull ThrowingRunnable runnable
     ) throws Exception {
+        Require.notNull(runnable, "runnable must not be null");
         return execute(context, () -> {
             runnable.run();
             return Boolean.TRUE;

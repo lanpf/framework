@@ -3,6 +3,8 @@ package com.cloud.framework.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +30,8 @@ class AbstractDomainEventTest {
     @Test
     void shouldRejectNullOccurredAt() {
         assertThatThrownBy(() -> new OrderCreatedEvent(null))
-                .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("occurredAt must not be null");
     }
 }

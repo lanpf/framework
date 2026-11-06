@@ -25,11 +25,16 @@
 
 ### `framework-bom`
 
-- 提供 `framework` 工程内除 `framework-dependencies` 外的全部基础 module 版本约束：core、domain、message、id、persistence、lock。
+- 提供 `framework` 工程内除 `framework-dependencies` 外的全部基础 module 版本约束：kernel、core、domain、message、id、persistence、lock。
+
+### `framework-kernel`
+
+- 提供只依赖 JDK 的错误码结构、`BaseException`、`FrameworkException` 与 `Require`。
+- `FrameworkError` 只表达跨能力通用的内部错误、非法技术参数和非法执行状态；可识别的能力错误由对应 framework 或 starter module 声明。
 
 ### `framework-core`
 
-- 提供通用请求与响应、错误码与异常、分页请求、入口客户端上下文请求、请求头契约、校验断言、命名空间与资源命名、REST 客户端属性和 MapStruct 公共配置等基础能力。
+- 提供通用请求与响应、分页请求、入口客户端上下文请求、请求头契约、Web 入站错误、命名空间与资源命名、REST 客户端属性和 MapStruct 公共配置等基础能力。
 - 请求契约：`Request` 是请求类型标记接口。`request.AppRequest` 承载 `appId`（必填）、`appPlatform`、`appVersion`，分别消费 `X-App-Id`、`X-App-Platform`、`X-App-Version`。`ClientContext` 独立声明必填 `clientId`，消费 `X-Client-Id`；`AuthenticatedSessionContext` 声明必填 `userId`、`sessionId`。框架提供 `ClientAppRequest`、`AuthenticatedSessionAppRequest`、`AuthenticatedSessionClientAppRequest`，按需组合 Client 和认证会话，不要求普通 App 请求必须有 Client。旧 ClientRequest/ChannelContext 命名直接迁移，不保留 Header 别名。
 - 上下文绑定：Web starter 在请求体反序列化后、`@Valid`/`@Validated` 校验前，用受保护 Header 覆盖上述字段；缺失 Header 也覆盖为 null，不保留 body 声明。App/Client/会话身份由 gateway 验证，框架只消费已建立的 Header 契约，不依赖 gateway 的领域对象。业务目标与入口上下文需使用不同属性，如 `targetAppId` 与 `appId`。
 - 请求头契约：通用请求头名称由 `RequestHeader` 统一声明；`SubjectType` 表达受入口层写入的认证主体类型（`HOST_SESSION`、`BROWSER_SESSION`），区分宿主登录会话与受限浏览器会话。下游不得把缺失或未知的主体类型默认解释为宿主会话。
@@ -37,8 +42,7 @@
 - 分页契约：分页 API 请求通过 `Pagination` 组合分页能力（默认页码 1、默认页大小 20、页大小上限 200）；只有分页字段时可直接使用 `PageQueryRequest`，同时具有 Client、Channel 或业务条件时由请求类型自行实现该接口，不以分页类作为共同父类。`PageQuery` 是接口层完成默认值解析后交给 application、repository 和 persistence 使用的不可变分页条件，提供 `offset()`、`zeroBasedPageNo()` 换算；非法页码或页大小直接拒绝，不做静默纠正。
 - 内部分页数据：core 提供 `PagedList<T>`，适用于领域、application 和持久化端口的页数据交换，不携带 API 响应码。null 列表归一为空；列表结构与输入隔离且不可修改，元素引用共享，null 元素使用框架技术错误拒绝。
 - 响应契约：API 响应信封使用 `Result<T>`、`PageResult<T>`，共同契约由 `BaseResult` 表达（成功码 `0`、成功消息 `SUCCESS`）。失败响应不得携带数据。`Result<T>` 保留原始 payload 引用，不接管其状态所有权，不承诺快照或深层不可变；使用方按 payload 自身契约负责所需的隔离及发布期间稳定性。`PageResult<T>` 成功时缺失的列表归一为空，隔离原列表的结构变更，元素引用仍共享；失败时数据为 null。
-- 错误与异常：完整错误码固定 6 位（3 位服务前缀 + 3 位本地码），由 `ErrorCodeRange` 定义取值范围与格式化，`ErrorCodeNamespace` 划分 FRAMEWORK、CORE、BIZ、EDGE、RESERVED 前缀段，`ErrorCodePrefix` 定位服务前缀，`BaseError` 组合前缀与本地码。框架内部错误使用 `FrameworkError` 枚举（英文技术诊断默认消息）与 `FrameworkException`；服务异常共同基类为 `BaseException`。默认错误消息以 `命名空间:消息` 形式输出；显式技术诊断消息保留调用方提供的内容，不改变错误码。
-- 校验断言：`Require` 提供非空、非空白、集合/Map 非空、元素完整性及正数检查；默认使用框架技术错误，异常供应器可表达调用方的业务拒绝。`noNulls` 拒绝 null 容器，允许空容器，并检查集合元素及 Map 的 key/value；供应器重载对容器和元素均使用所提供的异常。`NullSafe` 仅在 null 与空容器等价的契约下提供遍历和不可修改浅复制，有序变体保留输入迭代顺序。
+- 错误、异常与 `Require` 由 `framework-kernel` 提供；core 的 `Result`、`PageResult` 和 Web 入站错误复用该基础契约。`NullSafe` 仅在 null 与空容器等价的契约下提供遍历和不可修改浅复制，有序变体保留输入迭代顺序。
 - 命名空间与资源命名：`Namespaced` 声明命名空间载体，`NamespaceResolver` 解析命名空间前缀，`ResourceNameResolver` 把业务键段解析为最终资源名（分隔符 `:`，跳过空白键段）；`DefaultResourceNameResolver` 只拼接键段，`NamespacedResourceNameResolver` 在键段前注入命名空间。
 - 其它基础能力：`RestClientProperties` 提供连接/读取超时的配置默认值与约束；`MapStructConfig` 提供组件模型为 Spring、未映射目标字段按 ERROR 校验的公共 Mapper 配置。
 
@@ -78,7 +82,7 @@
 
 ## 保证边界与当前交付
 
-- 六个生产能力 module 交付契约与局部技术实现，BOM 与 dependencies 仅管理版本；不包含可启动服务。
+- 七个生产能力 module 交付契约与局部技术实现，BOM 与 dependencies 仅管理版本；不包含可启动服务。
 - 不提供真实数据库、消息 broker、分布式锁存储或发号实现，运行环境及相应实现由 starter 和使用方组装。
 - 锁执行器只围绕回调获取和释放锁，不检测外围数据库事务是否已完成，也不替代数据一致性保护。
 - 消息端口不独立保证数据库原子性、消费幂等、ACK、重试或补偿恢复；这些保证属于具体适配实现及使用方。

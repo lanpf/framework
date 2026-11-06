@@ -1,7 +1,7 @@
 package com.cloud.framework.core.http;
 
-import com.cloud.framework.core.error.FrameworkError;
-import com.cloud.framework.core.error.FrameworkException;
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.util.List;
 import java.util.Locale;
 

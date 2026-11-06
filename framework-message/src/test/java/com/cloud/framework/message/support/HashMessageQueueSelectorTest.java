@@ -3,6 +3,7 @@ package com.cloud.framework.message.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.cloud.framework.kernel.error.FrameworkException;
 import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
@@ -39,16 +40,16 @@ class HashMessageQueueSelectorTest {
     @Test
     void shouldRejectMissingPartitionKey() {
         assertThatThrownBy(() -> selector.select(4, Map.of()))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(FrameworkException.class);
     }
 
     @Test
     void shouldRejectNonPositivePartitionCountsWithoutValidationProxy() {
         assertThatThrownBy(() -> selector.select(0, "key"))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("partitions must be positive");
+                .isInstanceOf(FrameworkException.class).hasMessage("partitions must be positive");
         assertThatThrownBy(() -> selector.select(-4, "key"))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("partitions must be positive");
+                .isInstanceOf(FrameworkException.class).hasMessage("partitions must be positive");
         assertThatThrownBy(() -> selector.select(null, "key"))
-                .isInstanceOf(NullPointerException.class).hasMessage("partitions must not be null");
+                .isInstanceOf(FrameworkException.class).hasMessage("partitions must be positive");
     }
 }

@@ -1,5 +1,8 @@
 package com.cloud.framework.message.support;
 
+import com.cloud.framework.kernel.error.FrameworkError;
+import com.cloud.framework.kernel.error.FrameworkException;
+import com.cloud.framework.message.error.MessageError;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,25 +21,31 @@ class MessageQueueSelectorContractTest {
     @MethodSource("selectors")
     void shouldRejectNullPartitionCountBeforeResolvingKey(MessageQueueSelector selector) {
         assertThatThrownBy(() -> selector.select(null, null))
-                .isInstanceOf(NullPointerException.class).hasMessage("partitions must not be null");
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", FrameworkError.ILLEGAL_ARGUMENT.errorCode())
+                .hasMessage("partitions must be positive");
     }
 
     @ParameterizedTest
     @MethodSource("selectors")
     void shouldRejectNonPositivePartitionCountBeforeResolvingKey(MessageQueueSelector selector) {
         assertThatThrownBy(() -> selector.select(0, null))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("partitions must be positive");
+                .isInstanceOf(FrameworkException.class).hasMessage("partitions must be positive");
         assertThatThrownBy(() -> selector.select(-1, null))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("partitions must be positive");
+                .isInstanceOf(FrameworkException.class).hasMessage("partitions must be positive");
     }
 
     @ParameterizedTest
     @MethodSource("selectors")
     void shouldRejectMissingPartitionKeyAfterValidatingCount(MessageQueueSelector selector) {
         assertThatThrownBy(() -> selector.select(4, null))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("partition key is required");
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MessageError.PARTITION_KEY_MISSING.errorCode())
+                .hasMessage("partition key is required");
         assertThatThrownBy(() -> selector.select(4, Map.of()))
-                .isInstanceOf(IllegalArgumentException.class).hasMessage("x-partition-key is required");
+                .isInstanceOf(FrameworkException.class)
+                .hasFieldOrPropertyWithValue("errorCode", MessageError.PARTITION_KEY_MISSING.errorCode())
+                .hasMessage("x-partition-key is required");
     }
 
     @ParameterizedTest

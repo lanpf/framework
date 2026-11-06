@@ -1,7 +1,7 @@
 package com.cloud.framework.core.http;
 
-import com.cloud.framework.core.error.FrameworkException;
-import com.cloud.framework.core.validation.Require;
+import com.cloud.framework.kernel.error.FrameworkException;
+import com.cloud.framework.kernel.validation.Require;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
