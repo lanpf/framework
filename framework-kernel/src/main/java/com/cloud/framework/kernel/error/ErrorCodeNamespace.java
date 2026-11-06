@@ -1,10 +1,15 @@
 package com.cloud.framework.kernel.error;
 
+/**
+ * 按错误契约的归属划分六位错误码的前三位。接入层返回框架或业务服务的错误时保留原码。
+ */
 public enum ErrorCodeNamespace implements ErrorCodeRange {
-    FRAMEWORK(100, 100),
-    CORE(101, 199),
-    BIZ(200, 799),
-    EDGE(800, 899);
+    /** 前缀 100–199，用于框架定义的通用错误和能力错误。 */
+    FRAMEWORK(100, 199),
+    /** 前缀 200–299，用于网关及业务服务的入站适配器自己定义的接入错误。 */
+    EDGE(200, 299),
+    /** 前缀 300–899，用于业务服务定义的领域、应用和基础设施错误。 */
+    BIZ(300, 899);
 
     private final int minPrefix;
     private final int maxPrefix;

@@ -56,9 +56,13 @@ class FrameworkErrorTest {
     }
 
     @Test
-    void shouldExposeNamespaceAndPrefixRanges() {
-        assertThat(ErrorCodeNamespace.BIZ.min()).isEqualTo(200000);
-        assertThat(ErrorCodeNamespace.BIZ.max()).isEqualTo(799999);
+    void shouldExposeNonOverlappingNamespaceRanges() {
+        assertThat(ErrorCodeNamespace.FRAMEWORK.min()).isEqualTo(100000);
+        assertThat(ErrorCodeNamespace.FRAMEWORK.max()).isEqualTo(199999);
+        assertThat(ErrorCodeNamespace.EDGE.min()).isEqualTo(200000);
+        assertThat(ErrorCodeNamespace.EDGE.max()).isEqualTo(299999);
+        assertThat(ErrorCodeNamespace.BIZ.min()).isEqualTo(300000);
+        assertThat(ErrorCodeNamespace.BIZ.max()).isEqualTo(899999);
     }
 
     @Test
